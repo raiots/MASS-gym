@@ -72,3 +72,5 @@ class BVH:
     def ReadHierarchy(parent, name, channel_offset, ifs):
         pass # TODO: to use the python's specific file stream handler
 
+    
+
