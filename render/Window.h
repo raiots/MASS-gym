@@ -8,9 +8,11 @@
 #include <pybind11/embed.h>
 namespace py = pybind11;
 
+class Environment;
+
 namespace MASS
 {
-class Environment;
+
 class Muscle;
 class Window : public dart::gui::glut::Win3D
 {

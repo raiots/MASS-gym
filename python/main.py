@@ -17,7 +17,10 @@ import torch.nn.functional as F
 import torchvision.transforms as T
 
 import numpy as np
-import pymss
+# import pymss
+
+from EnvManager import EnvManager
+
 from Model import *
 use_cuda = torch.cuda.is_available()
 FloatTensor = torch.cuda.FloatTensor if use_cuda else torch.FloatTensor
@@ -61,7 +64,7 @@ class PPO(object):
 	def __init__(self,meta_file):
 		np.random.seed(seed = int(time.time()))
 		self.num_slaves = 16
-		self.env = pymss.pymss(meta_file,self.num_slaves)
+		self.env = EnvManager(meta_file,self.num_slaves)
 		self.use_muscle = self.env.UseMuscle()
 		self.num_state = self.env.GetNumState()
 		self.num_action = self.env.GetNumAction()
@@ -363,7 +366,7 @@ class PPO(object):
 
 import matplotlib
 import matplotlib.pyplot as plt
-
+matplotlib.use("Agg")
 plt.ion()
 
 def Plot(y,title,num_fig=1,ylim=True):
@@ -382,7 +385,7 @@ def Plot(y,title,num_fig=1,ylim=True):
 	plt.plot(y,'b')
 	
 	plt.plot(temp_y,'r')
-
+	plt.savefig("fig_kick.png")
 	plt.show()
 	if ylim:
 		plt.ylim([0,1])
@@ -403,7 +406,7 @@ if __name__=="__main__":
 	ppo = PPO(args.meta)
 	nn_dir = '../nn'
 	if not os.path.exists(nn_dir):
-	    os.makedirs(nn_dir)
+		os.makedirs(nn_dir)
 	if args.model is not None:
 		ppo.LoadModel(args.model)
 	else:

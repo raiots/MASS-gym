@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 2.8.6)
-project(pymss)
+
+project(pyEnv)
 
 add_compile_options(-fPIC)
 add_compile_options(-std=gnu++11)
@@ -26,7 +27,7 @@ file(GLOB srcs "*.h" "*.cpp")
 include_directories(${PYTHON_INCLUDE_DIR})
 include_directories(${DART_INCLUDE_DIRS})
 
-add_library(pymss SHARED ${srcs})
+add_library(pyEnv SHARED ${srcs})
 
-target_link_libraries(pymss ${DART_LIBRARIES} ${PYTHON_LIBRARIES} mss pybind11::module)
-set_target_properties(pymss PROPERTIES PREFIX "" )
+target_link_libraries(pyEnv ${DART_LIBRARIES} ${PYTHON_LIBRARIES} mss pybind11::module)
+set_target_properties(pyEnv PROPERTIES PREFIX "" )

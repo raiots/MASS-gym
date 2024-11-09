@@ -6,7 +6,7 @@
 #include "Muscle.h"
 int main(int argc,char** argv)
 {
-	MASS::Environment* env = new MASS::Environment();
+	Environment* env = new Environment();
 
 	if(argc==1)
 	{

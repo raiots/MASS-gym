@@ -3,8 +3,16 @@
 #include "dart/dart.hpp"
 #include "Character.h"
 #include "Muscle.h"
-namespace MASS
-{
+#include <pybind11/embed.h>
+#include <pybind11/pybind11.h>
+#include <pybind11/numpy.h>
+#include <pybind11/eigen.h>
+#include <pybind11/stl.h>
+#include <Eigen/Core>
+#include <utility>
+namespace py = pybind11;
+
+using namespace MASS;
 
 struct MuscleTuple
 {
@@ -77,6 +85,6 @@ private:
 
 	double w_q,w_v,w_ee,w_com;
 };
-};
+
 
 #endif
