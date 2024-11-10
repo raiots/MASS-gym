@@ -6,6 +6,7 @@
 using namespace dart;
 using namespace dart::dynamics;
 using namespace MASS;
+
 Character::
 Character()
 	:mSkeleton(nullptr),mBVH(nullptr),mTc(Eigen::Isometry3d::Identity())
@@ -186,4 +187,24 @@ GetTargetPosAndVel(double t,double dt)
 	mTc = Tc;
 
 	return std::make_pair(p,(p1-p)/dt);
+}
+
+
+PYBIND11_MODULE(pyCharacter, m)
+{
+	py::class_<Character>(m, "pyCharacter")
+	.def(py::init())
+	.def("LoadSkeleton", &Character::LoadSkeleton)
+	.def("LoadMuscles", &Character::LoadMuscles)
+	.def("LoadBVH", &Character::LoadBVH)
+	.def("Reset", &Character::Reset)
+	.def("SetPDParameters", &Character::SetPDParameters)
+	.def("AddEndEffector", &Character::AddEndEffector)
+	.def("GetSPDForces", &Character::GetSPDForces)
+	.def("GetTargetPositions", &Character::GetTargetPositions)
+	.def("GetTargetPosAndVel", &Character::GetTargetPosAndVel)
+	.def("GetSkeleton", &Character::GetSkeleton)
+	.def("GetMuscles", &Character::GetMuscles)
+	.def("GetEndEffectors", &Character::GetEndEffectors)
+	.def("GetBVH", &Character::GetBVH);
 }

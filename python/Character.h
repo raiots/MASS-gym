@@ -1,9 +1,16 @@
 #ifndef __MASS_CHARACTER_H__
 #define __MASS_CHARACTER_H__
 #include "dart/dart.hpp"
+#include <pybind11/embed.h>
+#include <pybind11/pybind11.h>
+#include <pybind11/numpy.h>
+#include <pybind11/eigen.h>
+#include <pybind11/stl.h>
+#include <Eigen/Core>
+#include <utility>
+namespace py = pybind11;
 
-namespace MASS
-{
+
 class BVH;
 class Muscle;
 class Character
@@ -39,6 +46,6 @@ public:
 	Eigen::VectorXd mKp, mKv;
 
 };
-};
+
 
 #endif
