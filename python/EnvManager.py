@@ -161,15 +161,3 @@ class EnvManager:
     def GetNumMuscles(self):
         return self._mEnvs[0].GetCharacter().GetMuscles().size()
     
-
-
-
-    
-
-
-
-    
-    
-    
-
-
