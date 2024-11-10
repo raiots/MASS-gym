@@ -30,7 +30,7 @@ Initialize(const std::string& meta_file,bool load_obj)
 	std::string str;
 	std::string index;
 	std::stringstream ss;
-	MASS::Character* character = new MASS::Character();
+	Character* character = new Character();
 	while(!ifs.eof())
 	{
 		str.clear();

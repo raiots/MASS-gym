@@ -31,3 +31,8 @@ add_library(pyEnv SHARED ${srcs})
 
 target_link_libraries(pyEnv ${DART_LIBRARIES} ${PYTHON_LIBRARIES} mss pybind11::module)
 set_target_properties(pyEnv PROPERTIES PREFIX "" )
+
+add_library(pyCharacter SHARED ${srcs})
+
+target_link_libraries(pyCharacter ${DART_LIBRARIES} ${PYTHON_LIBRARIES} mss pybind11::module)
+set_target_properties(pyCharacter PROPERTIES PREFIX "" )

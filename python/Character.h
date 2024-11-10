@@ -1,6 +1,8 @@
 #ifndef __MASS_CHARACTER_H__
 #define __MASS_CHARACTER_H__
 #include "dart/dart.hpp"
+#include "BVH.h"
+#include "Muscle.h"
 #include <pybind11/embed.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
@@ -10,9 +12,10 @@
 #include <utility>
 namespace py = pybind11;
 
+using namespace MASS;
 
-class BVH;
-class Muscle;
+class MASS::BVH;
+class MASS::Muscle;
 class Character
 {
 public:

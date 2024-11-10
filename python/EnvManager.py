@@ -1,5 +1,6 @@
 import numpy as np
 import pyEnv
+import pyCharacter
 
 class EnvManager:
     def __init__(self, meta_file, num_envs, seed=None):
