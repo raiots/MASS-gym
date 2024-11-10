@@ -36,3 +36,8 @@ add_library(pyCharacter SHARED ${srcs})
 
 target_link_libraries(pyCharacter ${DART_LIBRARIES} ${PYTHON_LIBRARIES} mss pybind11::module)
 set_target_properties(pyCharacter PROPERTIES PREFIX "" )
+
+add_library(pyMuscle SHARED ${srcs})
+
+target_link_libraries(pyMuscle ${DART_LIBRARIES} ${PYTHON_LIBRARIES} mss pybind11::module)
+set_target_properties(pyMuscle PROPERTIES PREFIX "" )

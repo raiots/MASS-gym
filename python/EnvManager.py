@@ -1,6 +1,7 @@
 import numpy as np
 import pyEnv
 import pyCharacter
+import pyMuscle
 
 class EnvManager:
     def __init__(self, meta_file, num_envs, seed=None):

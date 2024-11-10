@@ -2,8 +2,7 @@
 #define __MASS_MUSCLE_H__
 #include "dart/dart.hpp"
 
-namespace MASS
-{
+
 struct Anchor
 {
 	int num_related_bodies;
@@ -68,5 +67,4 @@ public:
 	double gamma; //For g_al
 };
 
-}
 #endif

@@ -2,6 +2,7 @@
 
 using namespace MASS;
 using namespace dart::dynamics;
+
 std::vector<int> sort_indices(const std::vector<double>& val)
 {
 	std::vector<int> idx(val.size());
@@ -409,3 +410,31 @@ g_al(double _l_m)
 {
 	return exp(-(_l_m-1.0)*(_l_m-1.0)/gamma);
 }
+
+PYBIND11_MODULE(pyMuscle, m)
+{
+	py::class_<Muscle>(m, "pyMuscle")
+	.def(py::init<string, double, double, double, double, double>())
+	.def("AddAnchor", static_cast<void (Muscle::*)(const dart::dynamics::SkeletonPtr&, dart::dynamics::BodyNode*, const Eigen::Vector3d&, int)>(&Muscle::AddAnchor))
+	.def("AddAnchor", static_cast<void (Muscle::*)(dart::dynamics::BodyNode*, const Eigen::Vector3d&)>(&Muscle::AddAnchor))
+	.def("GetAnchors", &Muscle::GetAnchors)
+	.def("Update", &Muscle::Update)
+	.def("ApplyForceToBody", &Muscle::ApplyForceToBody)
+	.def("GetForce", &Muscle::GetForce)
+	.def("Getf_A", &Muscle::Getf_A)
+	.def("Getf_p", &Muscle::Getf_p)
+	.def("Getl_mt", &Muscle::Getl_mt)
+	.def("GetJacobianTranspose", &Muscle::GetJacobianTranspose)
+	.def("GetForceJacobianAndPassive", &Muscle::GetForceJacobianAndPassive)
+	.def("GetNumRelatedDofs", &Muscle::GetNumRelatedDofs)
+	.def("GetRelatedJtA", &Muscle::GetRelatedJtA)
+	.def("GetRelatedJoints", &Muscle::GetRelatedJoints)
+	.def("GetRelatedBodyNodes", &Muscle::GetRelatedBodyNodes)
+	.def("ComputeJacobians", &Muscle::ComputeJacobians)
+	.def("Getdl_dtheta", &Muscle::Getdl_dtheta)
+	.def("g", &Muscle::g)
+	.def("g_t", &Muscle::g_t)
+	.def("g_pl", &Muscle::g_pl)
+	.def("g_al", &Muscle::g_al);
+}
+
