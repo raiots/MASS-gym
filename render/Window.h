@@ -9,11 +9,11 @@
 namespace py = pybind11;
 
 class Environment;
+class Muscle;
 
 namespace MASS
 {
 
-class Muscle;
 class Window : public dart::gui::glut::Win3D
 {
 public:

@@ -77,6 +77,7 @@ class EnvManager:
 
     def Resets(self, RSI):
         for id in range(self._mNumEnvs):
+            print('id= {id}/{mNumEnvs}'.format(id=id, mNumEnvs=self._mNumEnvs))
             self._mEnvs[id].Reset(RSI)
     
     def IsEndOfEpisodes(self):
@@ -158,8 +159,8 @@ class EnvManager:
         return self._mMuscleTuplesb
     
     def GetNumTotalMuscleRelatedDofs(self):
-        return self._mEnvs[0].GetNumTotalMuscleRelatedDofs()
+        return self._mEnvs[0].GetNumTotalRelatedDofs()
     
     def GetNumMuscles(self):
-        return self._mEnvs[0].GetCharacter().GetMuscles().size()
+        return len(self._mEnvs[0].GetCharacter().GetMuscles())
     

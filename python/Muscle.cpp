@@ -414,7 +414,7 @@ g_al(double _l_m)
 PYBIND11_MODULE(pyMuscle, m)
 {
 	py::class_<Muscle>(m, "pyMuscle")
-	.def(py::init<string, double, double, double, double, double>())
+	.def(py::init<std::string, double, double, double, double, double>())
 	.def("AddAnchor", static_cast<void (Muscle::*)(const dart::dynamics::SkeletonPtr&, dart::dynamics::BodyNode*, const Eigen::Vector3d&, int)>(&Muscle::AddAnchor))
 	.def("AddAnchor", static_cast<void (Muscle::*)(dart::dynamics::BodyNode*, const Eigen::Vector3d&)>(&Muscle::AddAnchor))
 	.def("GetAnchors", &Muscle::GetAnchors)

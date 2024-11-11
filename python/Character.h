@@ -15,7 +15,7 @@ namespace py = pybind11;
 using namespace MASS;
 
 class MASS::BVH;
-class MASS::Muscle;
+
 class Character
 {
 public:

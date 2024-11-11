@@ -147,24 +147,28 @@ Environment::
 Reset(bool RSI)
 {
 	mWorld->reset();
-
-	mCharacter->GetSkeleton()->clearConstraintImpulses();
+	std::cout << "after mWorld reset" << std::endl;
+	auto skeleton = mCharacter->GetSkeleton();
+	std::cout << "after character get skeleton, is none = "  << (skeleton == NULL) << std::endl;
+	skeleton->clearConstraintImpulses();
+	std::cout << "after clearConstraintImpulses" << std::endl;
 	mCharacter->GetSkeleton()->clearInternalForces();
 	mCharacter->GetSkeleton()->clearExternalForces();
 	
 	double t = 0.0;
-
+	std::cout << "before get random time" << std::endl;
 	if(RSI)
 		t = dart::math::random(0.0,mCharacter->GetBVH()->GetMaxTime()*0.9);
 	mWorld->setTime(t);
 	mCharacter->Reset();
 
 	mAction.setZero();
-
+	std::cout << "after mAction set zero" << std::endl;
 	std::pair<Eigen::VectorXd,Eigen::VectorXd> pv = mCharacter->GetTargetPosAndVel(t,1.0/mControlHz);
 	mTargetPositions = pv.first;
 	mTargetVelocities = pv.second;
 
+	std::cout << "before set positions" << std::endl;
 	mCharacter->GetSkeleton()->setPositions(mTargetPositions);
 	mCharacter->GetSkeleton()->setVelocities(mTargetVelocities);
 	mCharacter->GetSkeleton()->computeForwardKinematics(true,false,false);

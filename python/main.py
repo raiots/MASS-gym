@@ -88,13 +88,14 @@ class PPO(object):
 		self.muscle_batch_size = 128
 		self.replay_buffer = ReplayBuffer(30000)
 		self.muscle_buffer = {}
-
+		print('before create Simulation NN')
 		self.model = SimulationNN(self.num_state,self.num_action)
-
+		print('after creating SimulationNN')
 		self.muscle_model = MuscleNN(self.env.GetNumTotalMuscleRelatedDofs(),self.num_action,self.num_muscles)
 		if use_cuda:
 			self.model.cuda()
 			self.muscle_model.cuda()
+		print('after creating MuscleNN')
 
 		self.default_learning_rate = 1E-4
 		self.default_clip_ratio = 0.2
@@ -114,11 +115,13 @@ class PPO(object):
 		self.max_return = -1.0
 		self.max_return_epoch = 1
 		self.tic = time.time()
-
+		print('before creating EpisodeBuffer')
 		self.episodes = [None]*self.num_slaves
 		for j in range(self.num_slaves):
 			self.episodes[j] = EpisodeBuffer()
+		print('before env resets')
 		self.env.Resets(True)
+		print('after env resets true')
 
 	def SaveModel(self):
 		self.model.save('../nn/current.pt')
@@ -133,7 +136,9 @@ class PPO(object):
 
 	def LoadModel(self,path):
 		self.model.load('../nn/'+path+'.pt')
+		print('model loaded')
 		self.muscle_model.load('../nn/'+path+'_muscle.pt')
+		print('muscle loaded')
 
 	def ComputeTDandGAE(self):
 		self.replay_buffer.Clear()
@@ -398,11 +403,15 @@ if __name__=="__main__":
 	parser.add_argument('-m','--model',help='model path')
 	parser.add_argument('-d','--meta',help='meta file')
 
+
+	print('parser completed')
+
 	args =parser.parse_args()
 	if args.meta is None:
 		print('Provide meta file')
 		exit()
 
+	print('before create PPO')
 	ppo = PPO(args.meta)
 	nn_dir = '../nn'
 	if not os.path.exists(nn_dir):
@@ -411,6 +420,7 @@ if __name__=="__main__":
 		ppo.LoadModel(args.model)
 	else:
 		ppo.SaveModel()
+	print('model loaded or saved')
 	print('num states: {}, num actions: {}'.format(ppo.env.GetNumState(),ppo.env.GetNumAction()))
 	for i in range(ppo.max_iteration-5):
 		ppo.Train()

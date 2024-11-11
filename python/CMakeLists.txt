@@ -27,17 +27,20 @@ file(GLOB srcs "*.h" "*.cpp")
 include_directories(${PYTHON_INCLUDE_DIR})
 include_directories(${DART_INCLUDE_DIRS})
 
-add_library(pyEnv SHARED ${srcs})
+add_library(pyMuscle SHARED ${srcs})
 
-target_link_libraries(pyEnv ${DART_LIBRARIES} ${PYTHON_LIBRARIES} mss pybind11::module)
-set_target_properties(pyEnv PROPERTIES PREFIX "" )
+target_link_libraries(pyMuscle ${DART_LIBRARIES} ${PYTHON_LIBRARIES} mss pybind11::module)
+set_target_properties(pyMuscle PROPERTIES PREFIX "" )
 
 add_library(pyCharacter SHARED ${srcs})
 
 target_link_libraries(pyCharacter ${DART_LIBRARIES} ${PYTHON_LIBRARIES} mss pybind11::module)
 set_target_properties(pyCharacter PROPERTIES PREFIX "" )
 
-add_library(pyMuscle SHARED ${srcs})
+add_library(pyEnv SHARED ${srcs})
 
-target_link_libraries(pyMuscle ${DART_LIBRARIES} ${PYTHON_LIBRARIES} mss pybind11::module)
-set_target_properties(pyMuscle PROPERTIES PREFIX "" )
+target_link_libraries(pyEnv ${DART_LIBRARIES} ${PYTHON_LIBRARIES} mss pybind11::module)
+set_target_properties(pyEnv PROPERTIES PREFIX "" )
+
+
+
