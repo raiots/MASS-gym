@@ -63,7 +63,7 @@ Window(Environment* env,const std::string& nn_path,const std::string& muscle_nn_
 	py::exec(str,mns);
 	str = ("num_actions = "+std::to_string(mEnv->GetNumAction())).c_str();
 	py::exec(str,mns);
-	str = ("num_muscles = "+std::to_string(mEnv->GetCharacter()->GetMuscles().size())).c_str();
+	str = ("num_muscles = "+std::to_string(mEnv->GetCharacter().GetMuscles().size())).c_str();
 	py::exec(str,mns);
 
 	muscle_nn_module = py::eval("MuscleNN(num_total_muscle_related_dofs,num_actions,num_muscles)",mns);
@@ -90,8 +90,8 @@ draw()
 	float y = ground->getBodyNode(0)->getTransform().translation()[1] + dynamic_cast<const BoxShape*>(ground->getBodyNode(0)->getShapeNodesWith<dart::dynamics::VisualAspect>()[0]->getShape().get())->getSize()[1]*0.5;
 	
 	DrawGround(y);
-	DrawMuscles(mEnv->GetCharacter()->GetMuscles());
-	DrawSkeleton(mEnv->GetCharacter()->GetSkeleton());
+	DrawMuscles(mEnv->GetCharacter().GetMuscles());
+	DrawSkeleton(mEnv->GetCharacter().GetSkeleton());
 
 	// Eigen::Quaterniond q = mTrackBall.getCurrQuat();
 	// q.x() = 0.0;
@@ -191,7 +191,7 @@ GetActivationFromNN(const Eigen::VectorXd& mt)
 	if(!mMuscleNNLoaded)
 	{
 		mEnv->GetDesiredTorques();
-		return Eigen::VectorXd::Zero(mEnv->GetCharacter()->GetMuscles().size());
+		return Eigen::VectorXd::Zero(mEnv->GetCharacter().GetMuscles().size());
 	}
 	py::object get_activation = muscle_nn_module.attr("get_activation");
 

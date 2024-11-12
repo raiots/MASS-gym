@@ -48,7 +48,7 @@ public:
 	Eigen::VectorXd GetMuscleTorques();
 
 	const dart::simulation::WorldPtr& GetWorld(){return mWorld;}
-	Character* GetCharacter(){return mCharacter;}
+	Character& GetCharacter(){return *mCharacter;}
 	const dart::dynamics::SkeletonPtr& GetGround(){return mGround;}
 	int GetControlHz(){return mControlHz;}
 	int GetSimulationHz(){return mSimulationHz;}

@@ -134,7 +134,6 @@ Eigen::VectorXd
 Character::
 GetTargetPositions(double t,double dt)
 {
-	// std::cout<<"GetTargetPositions"<<std::endl;
 	Eigen::VectorXd p = mBVH->GetMotion(t);	
 	Eigen::Isometry3d T_current = dart::dynamics::FreeJoint::convertToTransform(p.head<6>());
 	T_current = mBVH->GetT0().inverse()*T_current;

@@ -249,7 +249,6 @@ BuildFromFile(const std::string& path,bool create_obj)
 	TiXmlElement *skeleton_elem = doc.FirstChildElement("Skeleton");
 	std::string skel_name = skeleton_elem->Attribute("name");
 	SkeletonPtr skel = Skeleton::create(skel_name);
-	std::cout << skel_name;
 
 	for(TiXmlElement* node = skeleton_elem->FirstChildElement("Node");node != nullptr;node = node->NextSiblingElement("Node"))
 	{
