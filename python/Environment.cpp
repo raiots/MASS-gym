@@ -243,15 +243,19 @@ GetDesiredTorques()
 }
 Eigen::VectorXd
 Environment::
-GetMuscleTorques()
+GetMuscleTorques(bool flag)
 {
 	int index = 0;
 	mCurrentMuscleTuple.JtA.setZero();
+
 	for(auto muscle : mCharacter->GetMuscles())
 	{
-		muscle->Update();
-		Eigen::VectorXd JtA_i = muscle->GetRelatedJtA();
+		muscle->Update(flag);
+		
+		Eigen::VectorXd JtA_i = muscle->GetRelatedJtA(flag);
+
 		mCurrentMuscleTuple.JtA.segment(index,JtA_i.rows()) = JtA_i;
+
 		index += JtA_i.rows();
 	}
 	
@@ -411,8 +415,6 @@ PYBIND11_MODULE(pyEnv, m)
 		.def("GetActivationLevels",&Environment::GetActivationLevels)
 		.def("SetActivationLevels",&Environment::SetActivationLevels)
 		.def("GetAverageActivationLevels",&Environment::GetAverageActivationLevels)
-		.def("GetDesiredTorques",&Environment::GetDesiredTorques)
-		.def("GetMuscleTorques",&Environment::GetMuscleTorques)
 		.def("GetWorld",&Environment::GetWorld)
 		.def("GetCharacter",&Environment::GetCharacter)
 		.def("GetGround",&Environment::GetGround)

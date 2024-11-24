@@ -117,6 +117,7 @@ class PPO(object):
 			self.episodes[j] = EpisodeBuffer()
 		self.env.Resets(True)
 
+
 	def SaveModel(self):
 		self.model.save('../nn/current.pt')
 		self.muscle_model.save('../nn/current_muscle.pt')
@@ -182,14 +183,14 @@ class PPO(object):
 		while True:
 			counter += 1
 			if counter%10 == 0:
-				print('SIM : {}'.format(local_step),end='\r')
+				print('SIM : {}'.format(local_step))
 			a_dist,v = self.model(Tensor(states))
 			actions = a_dist.sample().cpu().detach().numpy()
 
 			logprobs = a_dist.log_prob(Tensor(actions)).cpu().detach().numpy().reshape(-1)
 			values = v.cpu().detach().numpy().reshape(-1)
 			self.env.SetActions(actions)
-			if self.use_muscle:
+			if self.use_muscle:			
 				mt = Tensor(self.env.GetMuscleTorques())
 				for i in range(self.num_simulation_per_control//2):
 					dt = Tensor(self.env.GetDesiredTorques())
@@ -407,7 +408,7 @@ if __name__=="__main__":
 		ppo.LoadModel(args.model)
 	else:
 		ppo.SaveModel()
-
+	
 	print('num states: {}, num actions: {}'.format(ppo.env.GetNumState(),ppo.env.GetNumAction()))
 	for i in range(ppo.max_iteration-5):
 		ppo.Train()

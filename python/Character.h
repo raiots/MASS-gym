@@ -35,7 +35,13 @@ public:
 	
 	
 	const dart::dynamics::SkeletonPtr& GetSkeleton(){return mSkeleton;}
-	const std::vector<Muscle*>& GetMuscles() {return mMuscles;}
+	int GetNumOfMuscles() {
+		return mMuscles.size();
+	}
+	const std::vector<Muscle*>& GetMuscles() 
+	{
+		return mMuscles;
+	}
 	const std::vector<dart::dynamics::BodyNode*>& GetEndEffectors(){return mEndEffectors;}
 	BVH* GetBVH(){return mBVH;}
 public:

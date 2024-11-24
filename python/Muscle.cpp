@@ -192,10 +192,13 @@ ApplyForceToBody()
 }
 void
 Muscle::
-Update()
+Update(bool flag)
 {
 	for(int i =0;i<mAnchors.size();i++)
+	{
 		mCachedAnchorPositions[i] = mAnchors[i]->GetPoint();
+	}
+	
 	l_mt = Getl_mt();
 
 	l_m = l_mt - l_t0;
@@ -230,7 +233,7 @@ Getl_mt()
 }
 Eigen::VectorXd
 Muscle::
-GetRelatedJtA()
+GetRelatedJtA(bool flag)
 {
 	Eigen::MatrixXd Jt = GetJacobianTranspose();
 	
@@ -415,9 +418,9 @@ PYBIND11_MODULE(pyMuscle, m)
 {
 	py::class_<Muscle>(m, "pyMuscle")
 	.def(py::init<std::string, double, double, double, double, double>())
-	.def("AddAnchor", static_cast<void (Muscle::*)(const dart::dynamics::SkeletonPtr&, dart::dynamics::BodyNode*, const Eigen::Vector3d&, int)>(&Muscle::AddAnchor))
-	.def("AddAnchor", static_cast<void (Muscle::*)(dart::dynamics::BodyNode*, const Eigen::Vector3d&)>(&Muscle::AddAnchor))
-	.def("GetAnchors", &Muscle::GetAnchors)
+	//.def("AddAnchor", static_cast<void (Muscle::*)(const dart::dynamics::SkeletonPtr&, dart::dynamics::BodyNode*, const Eigen::Vector3d&, int)>(&Muscle::AddAnchor))
+	//.def("AddAnchor", static_cast<void (Muscle::*)(dart::dynamics::BodyNode*, const Eigen::Vector3d&)>(&Muscle::AddAnchor))
+	//.def("GetAnchors", &Muscle::GetAnchors)
 	.def("Update", &Muscle::Update)
 	.def("ApplyForceToBody", &Muscle::ApplyForceToBody)
 	.def("GetForce", &Muscle::GetForce)

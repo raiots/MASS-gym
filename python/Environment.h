@@ -45,7 +45,7 @@ public:
 	double GetReward();
 
 	Eigen::VectorXd GetDesiredTorques();
-	Eigen::VectorXd GetMuscleTorques();
+	Eigen::VectorXd GetMuscleTorques(bool flag = false);
 
 	const dart::simulation::WorldPtr& GetWorld(){return mWorld;}
 	Character& GetCharacter(){return *mCharacter;}

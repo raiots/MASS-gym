@@ -31,7 +31,7 @@ public:
 	void AddAnchor(const dart::dynamics::SkeletonPtr& skel,dart::dynamics::BodyNode* bn,const Eigen::Vector3d& glob_pos,int num_related_bodies);
 	void AddAnchor(dart::dynamics::BodyNode* bn,const Eigen::Vector3d& glob_pos);
 	const std::vector<Anchor*>& GetAnchors(){return mAnchors;}
-	void Update();
+	void Update(bool flag = false);
 	void ApplyForceToBody();
 	double GetForce();
 	double Getf_A();
@@ -42,7 +42,7 @@ public:
 	std::pair<Eigen::VectorXd,Eigen::VectorXd> GetForceJacobianAndPassive();
 
 	int GetNumRelatedDofs(){return num_related_dofs;};
-	Eigen::VectorXd GetRelatedJtA();
+	Eigen::VectorXd GetRelatedJtA(bool flag = false);
 
 	std::vector<dart::dynamics::Joint*> GetRelatedJoints();
 	std::vector<dart::dynamics::BodyNode*> GetRelatedBodyNodes();

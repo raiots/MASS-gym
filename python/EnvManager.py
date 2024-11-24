@@ -16,8 +16,8 @@ class EnvManager:
             self._mEnvs[id] = pyEnv.pyEnv()
             self._mEnvs[id].Initialize(meta_file, False) # TODO: env->Initialize(meta_file,false);
 
-        self._muscle_torque_cols = self._mEnvs[0].GetMuscleTorques().size # muscle_torque_cols = mEnvs[0]->GetMuscleTorques().rows();
-        self._tau_des_cols = self._mEnvs[0].GetDesiredTorques().size # tau_des_cols = mEnvs[0]->GetDesiredTorques().rows();
+        self._muscle_torque_cols = self._mEnvs[0].GetMuscleTorques(False).size
+        self._tau_des_cols = self._mEnvs[0].GetDesiredTorques().size 
 
         self._mEos = np.full(num_envs, None)
         self._mRewards = np.full(num_envs, None)
@@ -93,7 +93,7 @@ class EnvManager:
     
     def SetActions(self, actions):
         for id in range(self._mNumEnvs):
-            self._mEnvs[id].SetAction(actions.row(id).transpose)
+            self._mEnvs[id].SetAction(actions[id].transpose())
 
     def GetRewards(self):
         for id in range(self._mNumEnvs):
@@ -101,8 +101,8 @@ class EnvManager:
         return self._mRewards
     
     def GetMuscleTorques(self):
-        for id in range(self._mNumEnvs):
-            self._mMuscleTorques[id] = self._mEnvs[id].GetMuscleTorques()
+        for id in range(self._mNumEnvs):          
+            self._mMuscleTorques[id] = self._mEnvs[id].GetMuscleTorques(True)
         return self._mMuscleTorques
     
     def GetDesiredTorques(self):
@@ -163,6 +163,6 @@ class EnvManager:
         return self._mEnvs[0].GetNumTotalRelatedDofs()
     
     def GetNumMuscles(self):
-        num = len(self._mEnvs[0].GetCharacter().GetMuscles())
+        num = self._mEnvs[0].GetCharacter().GetNumOfMuscles()
         return num
     
