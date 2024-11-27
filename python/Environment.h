@@ -54,6 +54,41 @@ public:
 	int GetSimulationHz(){return mSimulationHz;}
 	int GetNumTotalRelatedDofs(){return mCurrentMuscleTuple.JtA.rows();}
 	std::vector<MuscleTuple>& GetMuscleTuples(){return mMuscleTuples;};
+	std::vector<Eigen::VectorXd> GetMuscleTuples_JtA(){
+		std::vector<Eigen::VectorXd> tmp;
+		for(auto muscleTuple: mMuscleTuples)
+		{
+			tmp.push_back(muscleTuple.JtA);
+		}
+		return tmp;
+	}
+	std::vector<Eigen::VectorXd> GetMuscleTuples_L()
+	{
+		std::vector<Eigen::VectorXd> tmp;
+		for(auto muscleTuple: mMuscleTuples)
+		{
+			tmp.push_back(muscleTuple.L);
+		}	
+		return tmp;	
+	}
+	std::vector<Eigen::VectorXd> GetMuscleTuples_b(){
+		std::vector<Eigen::VectorXd> tmp;
+		for(auto muscleTuple: mMuscleTuples)
+		{
+			tmp.push_back(muscleTuple.b);
+		}
+		return tmp;
+	}
+	std::vector<Eigen::VectorXd> GetMuscleTuples_tau_des()
+	{
+		std::vector<Eigen::VectorXd> tmp;
+		for(auto muscleTuple: mMuscleTuples)
+		{
+			tmp.push_back(muscleTuple.tau_des);
+		}	
+		return tmp;	
+	}
+
 	int GetNumState(){return mNumState;}
 	int GetNumAction(){return mNumActiveDof;}
 	int GetNumSteps(){return mSimulationHz/mControlHz;}

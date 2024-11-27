@@ -112,7 +112,7 @@ class EnvManager:
 
     def SetActivationLevels(self, activations):
         for id in range(self._mNumEnvs):
-            self._mEnvs[id].SetActivationLevels(activations.row(id))
+            self._mEnvs[id].SetActivationLevels(activations[id])
 
     
     def ComputeMuscleTuples(self):
@@ -123,14 +123,24 @@ class EnvManager:
         rows_b = 0
 
         for id in range(self._mNumEnvs):
-            tps = self._mEnvs(id).GetMuscleTuples()
-            n += tps.shape(0)
-            if tps.size() is not 0:
-                rows_JtA += tps(0).JtA.rows()
-                rows_tau_des += tps(0).tau_des.rows()
-                rows_L += tps(0).L.rows()
-                rows_b += tps(0).b.rows()
-        
+            tps_JtA = self._mEnvs[id].GetMuscleTuples_JtA()
+            tps_tau_des = self._mEnvs[id].GetMuscleTuples_tau_des()
+            tps_L = self._mEnvs[id].GetMuscleTuples_L()
+            tps_b = self._mEnvs[id].GetMuscleTuples_b()
+            n_JtA = len(tps_JtA)
+            n_tau_des = len(tps_tau_des)
+            n_L = len(tps_L)
+            n_b = len(tps_b)
+            if not (n_JtA == n_tau_des and n_tau_des == n_L and n_L == n_b):
+                print('something wrong in ComputeMuscleTuples?')
+
+            n += n_JtA
+            if n_JtA > 0:
+                rows_JtA = tps_JtA[0].size
+                rows_tau_des = tps_tau_des[0].size
+                rows_L = tps_L[0].size
+                rows_b = tps_b[0].size
+
         self._mMuscleTuplesJtA = np.full((n, rows_JtA), None)
         self._mMuscleTuplesTauDes = np.full((n, rows_tau_des), None)
         self._mMuscleTuplesL = np.full((n, rows_L), None)
@@ -138,14 +148,20 @@ class EnvManager:
 
         o = 0
         for id in range(self._mNumEnvs):
-            tps = self._mEnvs(id).GetMuscleTuples()
-            for i in range(tps.shape(0)):
-                self._mMuscleTuplesJtA[o] = tps(i).JtA
-                self._mMuscleTuplesTauDes[o] = tps(i).tau_des
-                self._mMuscleTuplesL[o] = tps(i).L
-                self._mMuscleTuplesb[o] = tps(i).b
+            tps_JtA = self._mEnvs[id].GetMuscleTuples_JtA()
+            tps_tau_des = self._mEnvs[id].GetMuscleTuples_tau_des()
+            tps_L = self._mEnvs[id].GetMuscleTuples_L()
+            tps_b = self._mEnvs[id].GetMuscleTuples_b()
+            for i in range(len(tps_JtA)):
+                self._mMuscleTuplesJtA[o] = tps_JtA[i]
+                self._mMuscleTuplesTauDes[o] = tps_tau_des[i]
+                self._mMuscleTuplesL[o] = tps_L[i]
+                self._mMuscleTuplesb[o] = tps_b[i]
                 o += 1
-            tps.clear()
+            tps_JtA.clear()
+            tps_tau_des.clear()
+            tps_L.clear()
+            tps_b.clear()
         
     def GetMuscleTuplesJtA(self):
         return self._mMuscleTuplesJtA

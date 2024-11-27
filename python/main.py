@@ -190,10 +190,14 @@ class PPO(object):
 			logprobs = a_dist.log_prob(Tensor(actions)).cpu().detach().numpy().reshape(-1)
 			values = v.cpu().detach().numpy().reshape(-1)
 			self.env.SetActions(actions)
-			if self.use_muscle:			
-				mt = Tensor(self.env.GetMuscleTorques())
+			if self.use_muscle:
+				tmp = self.env.GetMuscleTorques()
+				tmp = np.array(tmp, dtype=np.float64)			
+				mt = Tensor(tmp)
 				for i in range(self.num_simulation_per_control//2):
-					dt = Tensor(self.env.GetDesiredTorques())
+					tmp = self.env.GetDesiredTorques()
+					tmp = np.array(tmp, dtype=np.float64)
+					dt = Tensor(tmp)
 					activations = self.muscle_model(mt,dt).cpu().detach().numpy()
 					self.env.SetActivationLevels(activations)
 
