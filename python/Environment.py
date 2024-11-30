@@ -1,11 +1,12 @@
 import numpy as np
 from Isometry3d import Isometry3d
+import pyWorldPtr
 
 class Environment:
     def __init__(self):
         self._mControlHz = 30
         self._mSimulationHz = 900
-        self._mWorld = World()
+        self._mWorld = pyWorldPtr.pyWorldPtr()
         self._mUseMuscle = True
         self._w_q = 0.65
         self._w_v = 0.1

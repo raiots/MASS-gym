@@ -1,5 +1,5 @@
 import numpy as np
-import pyEnv
+import Environment as pyEnv
 import pyCharacter
 import pyMuscle
 
