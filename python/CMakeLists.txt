@@ -37,6 +37,11 @@ add_library(pyCharacter SHARED ${srcs})
 target_link_libraries(pyCharacter ${DART_LIBRARIES} ${PYTHON_LIBRARIES} mss pybind11::module)
 set_target_properties(pyCharacter PROPERTIES PREFIX "" )
 
+add_library(pyMyWorldPtr SHARED ${srcs})
+
+target_link_libraries(pyMyWorldPtr ${DART_LIBRARIES} ${PYTHON_LIBRARIES} mss pybind11::module)
+set_target_properties(pyMyWorldPtr PROPERTIES PREFIX "" )
+
 add_library(pyEnv SHARED ${srcs})
 
 target_link_libraries(pyEnv ${DART_LIBRARIES} ${PYTHON_LIBRARIES} mss pybind11::module)

@@ -1,5 +1,5 @@
 import numpy as np
-import Environment as pyEnv
+from Environment import Environment
 import pyCharacter
 import pyMuscle
 
@@ -13,10 +13,10 @@ class EnvManager:
 
         # TODO: omp_set_num_threads(mNumEnvs);
         for id in range(num_envs):
-            self._mEnvs[id] = pyEnv.pyEnv()
-            self._mEnvs[id].Initialize(meta_file, False) # TODO: env->Initialize(meta_file,false);
+            self._mEnvs[id] = Environment()
+            self._mEnvs[id].Initialize_from_file(meta_file, False) # TODO: env->Initialize(meta_file,false);
 
-        self._muscle_torque_cols = self._mEnvs[0].GetMuscleTorques(False).size
+        self._muscle_torque_cols = self._mEnvs[0].GetMuscleTorques().size
         self._tau_des_cols = self._mEnvs[0].GetDesiredTorques().size 
 
         self._mEos = np.full(num_envs, None)

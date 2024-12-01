@@ -1,12 +1,13 @@
 import numpy as np
 from Isometry3d import Isometry3d
-import pyWorldPtr
+import pyMyWorldPtr
+
 
 class Environment:
     def __init__(self):
         self._mControlHz = 30
         self._mSimulationHz = 900
-        self._mWorld = pyWorldPtr.pyWorldPtr()
+        self._mWorld = pyMyWorldPtr.pyMyWorldPtr()
         self._mUseMuscle = True
         self._w_q = 0.65
         self._w_v = 0.1
@@ -25,13 +26,13 @@ class Environment:
         self._mActivationLevels = None
         self._mAverageActivationLevels = None
         self._mDesiredTorques = None
-        self._mMuscleTuples = None
-        self._mCurrentMuscleTupe = None
+        self._mMuscleTuples = []
+        self._mCurrentMuscleTupe = {}
 
         self._mSimCount = 0
         self._mRandomSampleIndex = 0
 
-    def Initialize(self, meta_file, load_obj):
+    def Initialize_from_file(self, meta_file, load_obj):
         pass # TODO: to use python's file stream handler
 
     def Initialize(self):
@@ -54,10 +55,10 @@ class Environment:
                 m.Update()
                 num_total_related_dofs += m.GetNumRelatedDofs()
             
-            self._mCurrentMuscleTupe.JtA = np.full(num_total_related_dofs, 0)
-            self._mCurrentMuscleTupe.L = np.full(self._mNumActiveDof * self._mCharacter.GetMuscles().size, 0)
-            self._mCurrentMuscleTupe.b = np.full(self._mNumActiveDof, 0)
-            self._mCurrentMuscleTupe.tau_des = np.full(self._mNumActiveDof, 0)
+            self._mCurrentMuscleTupe['JtA'] = np.full(num_total_related_dofs, 0)
+            self._mCurrentMuscleTupe['L'] = np.full(self._mNumActiveDof * self._mCharacter.GetMuscles().size, 0)
+            self._mCurrentMuscleTupe['b'] = np.full(self._mNumActiveDof, 0)
+            self._mCurrentMuscleTupe['tau_des'] = np.full(self._mNumActiveDof, 0)
             self._mActivationLevels = np.full(self._mCharacter.GetMuscles().size, 0)
 
         self._mWorld.setGravity(np.array([0, -9.8, 0]))
@@ -120,14 +121,14 @@ class Environment:
                     JtA[0:n, i] = Jt * Ap[0]
                     Jtp += Jt * Ap[1]
                 
-                self._mCurrentMuscleTupe.JtA = self.GetMuscleTorques()
+                self._mCurrentMuscleTupe['JtA'] = self.GetMuscleTorques()
                 L = JtA[self._mRootJointDof:n, 0:m]
                 L_vectorized = np.full((n - self._mRootJointDof) * m, 0)
                 for i in range(n - self._mRootJointDof):
                     L_vectorized[i * m : i * m + m] = L[i, 0:m]
-                self._mCurrentMuscleTupe.L = L_vectorized
-                self._mCurrentMuscleTupe.b = Jtp[self._mRootJointDof:n]
-                self._mCurrentMuscleTupe.tau_des = self._mDesiredTorques[self._mDesiredTorques.rows() - self._mRootJointDof]
+                self._mCurrentMuscleTupe['L'] = L_vectorized
+                self._mCurrentMuscleTupe['b'] = Jtp[self._mRootJointDof:n]
+                self._mCurrentMuscleTupe['tau_des'] = self._mDesiredTorques[self._mDesiredTorques.rows() - self._mRootJointDof]
                 self._mMuscleTuples.append(self._mCurrentMuscleTupe)
             else:
                 self.GetMuscleTorques()
@@ -144,14 +145,14 @@ class Environment:
     
     def GetMuscleTorques(self):
         index = 0
-        self._mCurrentMuscleTupe.JtA.setZero()
+        self._mCurrentMuscleTupe['JtA'].fill(0)
         for muscle in self._mCharacter.GetMuscles():
             muscle.Update()
             JtA_i = muscle.GetRelatedJtA()
-            self._mCurrentMuscleTupe.JtA[index : index + JtA_i.rows()] = JtA_i
+            self._mCurrentMuscleTupe['JtA'][index : index + JtA_i.rows()] = JtA_i
             index += JtA_i.rows()
         
-        return self._mCurrentMuscleTupe.JtA
+        return self._mCurrentMuscleTupe['JtA']
     
     def exp_of_square(vec, w):
         return np.exp(-w * np.dot(vec, vec))

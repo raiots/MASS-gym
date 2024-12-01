@@ -18,6 +18,8 @@ using namespace dart::dynamics;
 namespace MASS
 {
     class MyWorldPtr: public dart::simulation::WorldPtr{
+    public:
+        MyWorldPtr();
         
     };
 

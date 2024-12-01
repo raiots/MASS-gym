@@ -9,13 +9,13 @@ using namespace MASS;
 using namespace MASS;
 
 MyWorldPtr::MyWorldPtr(){
-    this->WorldPtr(std::make_shared<World>());
+    WorldPtr(std::make_shared<World>());
 }
 
 
-PYBIND11_MODULE(pyWorldPtr, m)
+PYBIND11_MODULE(pyMyWorldPtr, m)
 {
-	py::class_<Environment>(m, "pyWorldPtr")
+	py::class_<MyWorldPtr>(m, "pyMyWorldPtr")
     .def(py::init());
 }
 
