@@ -42,6 +42,9 @@ public:
 	{
 		return mMuscles;
 	}
+
+	bool hasMuscles() {return true;}
+
 	const std::vector<dart::dynamics::BodyNode*>& GetEndEffectors(){return mEndEffectors;}
 	BVH* GetBVH(){return mBVH;}
 public:

@@ -6,12 +6,9 @@ using namespace dart::dynamics;
 using namespace MASS;
 
 
-using namespace MASS;
-
 MyWorldPtr::MyWorldPtr(){
     WorldPtr(std::make_shared<World>());
 }
-
 
 PYBIND11_MODULE(pyMyWorldPtr, m)
 {

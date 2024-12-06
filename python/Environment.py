@@ -1,7 +1,9 @@
 import numpy as np
 from Isometry3d import Isometry3d
+import os
 import pyMyWorldPtr
-
+import pyCharacter
+import MyDARTHelper
 
 class Environment:
     def __init__(self):
@@ -33,7 +35,54 @@ class Environment:
         self._mRandomSampleIndex = 0
 
     def Initialize_from_file(self, meta_file, load_obj):
-        pass # TODO: to use python's file stream handler
+        with open(meta_file) as ifs:
+            lines = ifs.readlines()     
+            character = pyCharacter.pyCharacter()
+            MASS_ROOT_DIR = os.path.dirname(os.path.dirname(__file__))
+            for line in lines:
+                args = line.split()
+                if args[0] is 'use_muscle':
+                    if args[1] is 'true':
+                        self.SetUseMuscle(True)
+                    elif args[1] is 'false':
+                        self.SetUseMuscle(False)
+                    else:
+                        raise ValueError('use_muscle: true or false')
+                elif args[0] is 'con_hz':
+                    self.SetControlHz(int(args[1]))
+                elif args[0] is 'sim_hz':
+                    self.SetSimulationHz(int(args[1]))
+                elif args[0] is 'skel_file':                  
+                    str2 = args[1]
+                    character.LoadSkeleton(os.path.join(MASS_ROOT_DIR, str2), load_obj)
+                elif args[0] is 'muscle_file':
+                    if self.GetUseMuscle():
+                        str2 = args[1]
+                        character.LoadMuscles(os.path.join(MASS_ROOT_DIR, str2))
+                    else:
+                        raise ValueError('muscle file no use muscle')
+                elif args[0] is "bvh_file":
+                    str2 = args[1]
+                    str3 = args[2]
+                    cyclic = False
+                    if str3 is 'true':
+                        cyclic = True
+                        character.LoadBVH(os.path.join(MASS_ROOT_DIR, str2), cyclic)
+                elif args[0] is 'reward_param':
+                    a = int(args[1])
+                    b = int(args[2])
+                    c = int(args[3])
+                    d = int(args[4])
+                    self.SetRewardParameters(a,b,c,d)
+                else:
+                    raise ValueError('no accpeted option')
+            # end for
+            kp = 300.0
+            character.SetPDParameters(kp, np.sqrt(2*kp))
+            self.SetCharacter(character)
+            self.SetGround(MyDARTHelper.BuildFromFile(os.path.join(MASS_ROOT_DIR, "/data/ground.xml")))
+            self.Initialize()
+        # end of with
 
     def Initialize(self):
         if self._mCharacter.GetSkeleton() == None:
@@ -235,6 +284,70 @@ class Environment:
             ee_diff[i * 3 : i * 3 + 3] = ees[i].getCOM()
 
         com_diff = skel.getCOM()
+
+    def SetUseMuscle(self, use_muscle):
+        self._mUseMuscle = use_muscle
+    
+    def SetControlHz(self, con_hz):
+        self._mControlHz = con_hz
+    
+    def SetSimulationHz(self, sim_hz):
+        self._mSimulationHz = sim_hz
+    
+    def SetCharacter(self, character):
+        self._mCharacter = character
+    
+    def SetGround(self, ground):
+        self._mGround = ground
+    
+    def SetRewardParameters(self, w_q, w_v, w_ee, w_com):
+        self._w_q = w_q
+        self._w_v = w_v
+        self._w_ee = w_ee
+        self._w_com = w_com
+
+    def GetWorld(self):
+        return self._mWorld
+    
+    def GetCharacter(self):
+        return self._mCharacter
+
+    def GetGround(self):
+        return self._mGround
+    
+    def GetControlHz(self):
+        return self._mControlHz
+    
+    def GetSimulationHz(self):
+        return self._mSimulationHz
+    
+    def GetNumTotalRelatedDofs(self):
+        return self._mCurrentMuscleTupe['JTA'].size
+    
+    def GetMuscleTuples_JtA(self):
+        tmp = []
+        for muscleTupe in self._mMuscleTuples:
+            tmp.append(muscleTupe['JtA'])
+        return tmp
+    
+    def GetMuscleTuples_L(self):
+        tmp = []
+        for muscleTupe in self._mMuscleTuples:
+            tmp.append(muscleTupe['L'])
+        return tmp
+
+    def GetMuscleTuples_b(self):
+        tmp = []
+        for muscleTupe in self._mMuscleTuples:
+            tmp.append(muscleTupe['b'])
+        return tmp
+       
+    def GetMuscleTuples_tau_des(self):
+        tmp = []
+        for muscleTupe in self._mMuscleTuples:
+            tmp.append(muscleTupe['tau_des'])
+        return tmp
+    
 
         
         

@@ -3,26 +3,22 @@
 using namespace dart::dynamics;
 
 ShapePtr
-MASS::
 MakeSphereShape(double radius)
 {
 	return std::shared_ptr<SphereShape>(new SphereShape(radius));
 }
 ShapePtr
-MASS::
 MakeBoxShape(const Eigen::Vector3d& size)
 {
 	return std::shared_ptr<BoxShape>(new BoxShape(size));
 }
 ShapePtr
-MASS::
 MakeCapsuleShape(double radius, double height)
 {
 	return std::shared_ptr<CapsuleShape>(new CapsuleShape(radius,height));
 }
 
 dart::dynamics::Inertia
-MASS::
 MakeInertia(const dart::dynamics::ShapePtr& shape,double mass)
 {
 	dart::dynamics::Inertia inertia;
@@ -33,7 +29,6 @@ MakeInertia(const dart::dynamics::ShapePtr& shape,double mass)
 }
 
 FreeJoint::Properties*
-MASS::
 MakeFreeJointProperties(const std::string& name,const Eigen::Isometry3d& parent_to_joint,const Eigen::Isometry3d& child_to_joint)
 {
 	FreeJoint::Properties* props = new FreeJoint::Properties();
@@ -49,7 +44,6 @@ MakeFreeJointProperties(const std::string& name,const Eigen::Isometry3d& parent_
 	return props;
 }
 PlanarJoint::Properties*
-MASS::
 MakePlanarJointProperties(const std::string& name,const Eigen::Isometry3d& parent_to_joint,const Eigen::Isometry3d& child_to_joint)
 {
 	PlanarJoint::Properties* props = new PlanarJoint::Properties();
@@ -65,7 +59,6 @@ MakePlanarJointProperties(const std::string& name,const Eigen::Isometry3d& paren
 	return props;
 }
 BallJoint::Properties*
-MASS::
 MakeBallJointProperties(const std::string& name,const Eigen::Isometry3d& parent_to_joint,const Eigen::Isometry3d& child_to_joint,const Eigen::Vector3d& lower,const Eigen::Vector3d& upper)
 {
 	BallJoint::Properties* props = new BallJoint::Properties();
@@ -85,7 +78,6 @@ MakeBallJointProperties(const std::string& name,const Eigen::Isometry3d& parent_
 	return props;
 }
 RevoluteJoint::Properties*
-MASS::
 MakeRevoluteJointProperties(const std::string& name,const Eigen::Vector3d& axis,const Eigen::Isometry3d& parent_to_joint,const Eigen::Isometry3d& child_to_joint,const Eigen::Vector1d& lower,const Eigen::Vector1d& upper)
 {
 	RevoluteJoint::Properties* props = new RevoluteJoint::Properties();
@@ -106,7 +98,6 @@ MakeRevoluteJointProperties(const std::string& name,const Eigen::Vector3d& axis,
 	return props;
 }
 WeldJoint::Properties*
-MASS::
 MakeWeldJointProperties(const std::string& name,const Eigen::Isometry3d& parent_to_joint,const Eigen::Isometry3d& child_to_joint)
 {
 	WeldJoint::Properties* props = new WeldJoint::Properties();
@@ -118,7 +109,6 @@ MakeWeldJointProperties(const std::string& name,const Eigen::Isometry3d& parent_
 	return props;
 }
 BodyNode*
-MASS::
 MakeBodyNode(const SkeletonPtr& skeleton,BodyNode* parent,Joint::Properties* joint_properties,const std::string& joint_type,dart::dynamics::Inertia inertia)
 {
 	BodyNode* bn;
@@ -157,12 +147,14 @@ MakeBodyNode(const SkeletonPtr& skeleton,BodyNode* parent,Joint::Properties* joi
 	bn->setInertia(inertia);
 	return bn;
 }
+
 Eigen::Vector3d Proj(const Eigen::Vector3d& u,const Eigen::Vector3d& v)
 {
 	Eigen::Vector3d proj;
 	proj = u.dot(v)/u.dot(u)*u;
 	return proj;	
 }
+
 Eigen::Isometry3d Orthonormalize(const Eigen::Isometry3d& T_old)
 {
 	Eigen::Isometry3d T;
@@ -186,6 +178,7 @@ Eigen::Isometry3d Orthonormalize(const Eigen::Isometry3d& T_old)
 	T.linear().col(2) = u2;
 	return T;
 }
+
 std::vector<double> split_to_double(const std::string& input, int num)
 {
     std::vector<double> result;
@@ -237,7 +230,6 @@ Eigen::Matrix3d string_to_matrix3d(const std::string& input){
 	return res;
 }
 dart::dynamics::SkeletonPtr
-MASS::
 BuildFromFile(const std::string& path,bool create_obj)
 {
 	TiXmlDocument doc;
@@ -362,4 +354,10 @@ BuildFromFile(const std::string& path,bool create_obj)
 
 	std::cout<<"(DOFs : "<<skel->getNumDofs()<<")"<< std::endl;
 	return skel;
+}
+
+PYBIND11_MODULE(MyDARTHelper, m) {
+    m.doc() = "DARTHelper"; // optional module docstring
+
+    m.def("BuildFromFile", &BuildFromFile, "build from file");
 }

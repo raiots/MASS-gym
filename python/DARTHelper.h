@@ -6,14 +6,14 @@ namespace Eigen {
 using Vector1d = Matrix<double, 1, 1>;
 using Matrix1d = Matrix<double, 1, 1>;
 }
+
 std::vector<double> split_to_double(const std::string& input, int num);
 Eigen::Vector1d string_to_vector1d(const std::string& input);
 Eigen::Vector3d string_to_vector3d(const std::string& input);
 Eigen::Vector4d string_to_vector4d(const std::string& input);
 Eigen::VectorXd string_to_vectorXd(const std::string& input, int n);
 Eigen::Matrix3d string_to_matrix3d(const std::string& input);
-namespace MASS
-{
+
 dart::dynamics::ShapePtr MakeSphereShape(double radius);
 dart::dynamics::ShapePtr MakeBoxShape(const Eigen::Vector3d& size);
 dart::dynamics::ShapePtr MakeCapsuleShape(double radius, double height);
@@ -28,6 +28,6 @@ dart::dynamics::WeldJoint::Properties* MakeWeldJointProperties(const std::string
 
 dart::dynamics::BodyNode* MakeBodyNode(const dart::dynamics::SkeletonPtr& skeleton,dart::dynamics::BodyNode* parent,dart::dynamics::Joint::Properties* joint_properties,const std::string& joint_type,dart::dynamics::Inertia inertia);
 dart::dynamics::SkeletonPtr BuildFromFile(const std::string& path,bool create_obj=false);
-};
+
 
 #endif

@@ -1,5 +1,5 @@
-#ifndef __MyWORLDPTR_H__
-#define __MyWORLDPTR_H__
+#ifndef __MySKELETONPTR_H__
+#define __MySKELETONPTR_H__
 #include "dart/dart.hpp"
 
 #include <pybind11/embed.h>
@@ -11,18 +11,12 @@
 #include <utility>
 namespace py = pybind11;
 
-using namespace dart;
-using namespace dart::simulation;
 using namespace dart::dynamics;
 
 
-    class MyWorldPtr: public dart::simulation::WorldPtr{
-    public:
-        MyWorldPtr();
-        
-    };
-
-
-
+class MySkeletonPtr: public SkeletonPtr{
+public:
+    MySkeletonPtr();
+};
 
 #endif

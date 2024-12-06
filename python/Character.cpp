@@ -204,6 +204,7 @@ PYBIND11_MODULE(pyCharacter, m)
 	.def("GetTargetPosAndVel", &Character::GetTargetPosAndVel)
 	.def("GetSkeleton", &Character::GetSkeleton)
 	//.def("GetMuscles", &Character::GetMuscles)
+	.def("hasMuscles", &Character::hasMuscles)
 	.def("GetNumOfMuscles", &Character::GetNumOfMuscles)
 	.def("GetEndEffectors", &Character::GetEndEffectors)
 	.def("GetBVH", &Character::GetBVH);
