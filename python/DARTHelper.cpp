@@ -229,7 +229,8 @@ Eigen::Matrix3d string_to_matrix3d(const std::string& input){
 
 	return res;
 }
-dart::dynamics::SkeletonPtr
+
+MySkeletonPtr
 BuildFromFile(const std::string& path,bool create_obj)
 {
 	TiXmlDocument doc;
@@ -262,18 +263,18 @@ BuildFromFile(const std::string& path,bool create_obj)
 		if(type == "Box")
 		{
 			Eigen::Vector3d size = string_to_vector3d(body->Attribute("size"));
-			shape = MASS::MakeBoxShape(size);
+			shape = MakeBoxShape(size);
 		}
 		else if(type=="Sphere")
 		{
 			double radius = std::stod(body->Attribute("radius"));
-			shape = MASS::MakeSphereShape(radius);
+			shape = MakeSphereShape(radius);
 		}
 		else if(type=="Capsule")
 		{
 			double radius = std::stod(body->Attribute("radius"));
 			double height = std::stod(body->Attribute("height"));
-			shape = MASS::MakeCapsuleShape(radius,height);
+			shape = MakeCapsuleShape(radius,height);
 		}
 		bool contact = false;
 		if(body->Attribute("contact")!=nullptr){
@@ -304,28 +305,28 @@ BuildFromFile(const std::string& path,bool create_obj)
 		Eigen::Isometry3d child_to_joint = T_body.inverse()*T_joint;
 		if(type == "Free")
 		{
-			props = MASS::MakeFreeJointProperties(name,parent_to_joint,child_to_joint);
+			props = MakeFreeJointProperties(name,parent_to_joint,child_to_joint);
 		}
 		else if(type == "Planar")
 		{
-			props = MASS::MakePlanarJointProperties(name,parent_to_joint,child_to_joint);
+			props = MakePlanarJointProperties(name,parent_to_joint,child_to_joint);
 		}
 		else if(type == "Ball")
 		{
 			Eigen::Vector3d lower = string_to_vector3d(joint->Attribute("lower"));
 			Eigen::Vector3d upper = string_to_vector3d(joint->Attribute("upper"));
-			props = MASS::MakeBallJointProperties(name,parent_to_joint,child_to_joint,lower,upper);
+			props = MakeBallJointProperties(name,parent_to_joint,child_to_joint,lower,upper);
 		}
 		else if(type == "Revolute")
 		{
 			Eigen::Vector1d lower = string_to_vector1d(joint->Attribute("lower"));
 			Eigen::Vector1d upper = string_to_vector1d(joint->Attribute("upper"));
 			Eigen::Vector3d axis = string_to_vector3d(joint->Attribute("axis"));
-			props = MASS::MakeRevoluteJointProperties(name,axis,parent_to_joint,child_to_joint,lower,upper);
+			props = MakeRevoluteJointProperties(name,axis,parent_to_joint,child_to_joint,lower,upper);
 		}
 		else if(type == "Weld")
 		{
-			props = MASS::MakeWeldJointProperties(name,parent_to_joint,child_to_joint);
+			props = MakeWeldJointProperties(name,parent_to_joint,child_to_joint);
 		}
 
 		auto bn = MakeBodyNode(skel,parent,props,type,inertia);
@@ -356,7 +357,7 @@ BuildFromFile(const std::string& path,bool create_obj)
 	return skel;
 }
 
-PYBIND11_MODULE(MyDARTHelper, m) {
+PYBIND11_MODULE(pyMyDARTHelper, m) {
     m.doc() = "DARTHelper"; // optional module docstring
 
     m.def("BuildFromFile", &BuildFromFile, "build from file");

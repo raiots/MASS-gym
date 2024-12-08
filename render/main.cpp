@@ -1,19 +1,20 @@
-#include "Window.h"
-#include "Environment.h"
-#include "DARTHelper.h"
-#include "Character.h"
-#include "BVH.h"
-#include "Muscle.h"
+// #include "Window.h"
+// #include "Environment.h"
+// #include "DARTHelper.h"
+// #include "Character.h"
+// #include "BVH.h"
+// #include "Muscle.h"
 int main(int argc,char** argv)
 {
-	Environment* env = new Environment();
+	return 0;
+	// Environment* env = new Environment();
 
-	if(argc==1)
-	{
-		std::cout<<"Provide Metadata.txt"<<std::endl;
-		return 0;
-	}
-	env->Initialize(std::string(argv[1]),true);
+	// if(argc==1)
+	// {
+	// 	std::cout<<"Provide Metadata.txt"<<std::endl;
+	// 	return 0;
+	// }
+	// env->Initialize(std::string(argv[1]),true);
 	// if(argc==3)
 	// 	env->SetUseMuscle(true);
 	// else
@@ -34,40 +35,40 @@ int main(int argc,char** argv)
 
 	// env->Initialize();
 
-	glutInit(&argc, argv);
+	// glutInit(&argc, argv);
 
-	MASS::Window* window;
-	if(argc == 2)
-	{
-		window = new MASS::Window(env);
-	}
-	else
-	{
-		if(env->GetUseMuscle())
-		{
-			if(argc!=4){
-				std::cout<<"Please provide two networks"<<std::endl;
-				return 0;
-			}
-			window = new MASS::Window(env,argv[2],argv[3]);
-		}
-		else
-		{
-			if(argc!=3)
-			{
-				std::cout<<"Please provide the network"<<std::endl;
-				return 0;
-			}
-			window = new MASS::Window(env,argv[2]);
-		}
-	}
-	// if(argc==1)
+	// MASS::Window* window;
+	// if(argc == 2)
+	// {
 	// 	window = new MASS::Window(env);
-	// else if (argc==2)
-	// 	window = new MASS::Window(env,argv[1]);
-	// else if (argc==3)
-	// 	window = new MASS::Window(env,argv[1],argv[2]);
+	// }
+	// else
+	// {
+	// 	if(env->GetUseMuscle())
+	// 	{
+	// 		if(argc!=4){
+	// 			std::cout<<"Please provide two networks"<<std::endl;
+	// 			return 0;
+	// 		}
+	// 		window = new MASS::Window(env,argv[2],argv[3]);
+	// 	}
+	// 	else
+	// 	{
+	// 		if(argc!=3)
+	// 		{
+	// 			std::cout<<"Please provide the network"<<std::endl;
+	// 			return 0;
+	// 		}
+	// 		window = new MASS::Window(env,argv[2]);
+	// 	}
+	// }
+	// // if(argc==1)
+	// // 	window = new MASS::Window(env);
+	// // else if (argc==2)
+	// // 	window = new MASS::Window(env,argv[1]);
+	// // else if (argc==3)
+	// // 	window = new MASS::Window(env,argv[1],argv[2]);
 	
-	window->initWindow(1920,1080,"gui");
-	glutMainLoop();
+	// window->initWindow(1920,1080,"gui");
+	// glutMainLoop();
 }

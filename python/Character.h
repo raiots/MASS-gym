@@ -3,6 +3,7 @@
 #include "dart/dart.hpp"
 #include "BVH.h"
 #include "Muscle.h"
+#include "MySkeletonPtr.h"
 #include <pybind11/embed.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
@@ -34,7 +35,7 @@ public:
 	std::pair<Eigen::VectorXd,Eigen::VectorXd> GetTargetPosAndVel(double t,double dt);
 	
 	
-	const dart::dynamics::SkeletonPtr& GetSkeleton(){return mSkeleton;}
+	MySkeletonPtr& GetSkeleton(){return mSkeleton;}
 	int GetNumOfMuscles() {
 		return mMuscles.size();
 	}
@@ -43,12 +44,32 @@ public:
 		return mMuscles;
 	}
 
+	const Muscle& getMuscleAt(unsigned i){
+		return *(mMuscles[i]);
+	}
+
 	bool hasMuscles() {return true;}
 
 	const std::vector<dart::dynamics::BodyNode*>& GetEndEffectors(){return mEndEffectors;}
 	BVH* GetBVH(){return mBVH;}
+	double GetBVH_GetMaxTime(){
+		return this->GetBVH()->GetMaxTime();
+	}
+
+	const std::map<std::string,std::string>& GetBVH_GetBVHMap(){
+		return this->GetBVH()->GetBVHMap();
+	}
+
+	std::size_t GetEndEffectors_size(){
+		return this->GetEndEffectors().size();
+	}
+
+	Eigen::Vector3d GetEndEffectors_i_getCOM(int i){
+		return this->GetEndEffectors()[i]->getCOM();
+	}
+
 public:
-	dart::dynamics::SkeletonPtr mSkeleton;
+	MySkeletonPtr mSkeleton;
 	BVH* mBVH;
 	Eigen::Isometry3d mTc;
 

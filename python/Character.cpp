@@ -204,8 +204,13 @@ PYBIND11_MODULE(pyCharacter, m)
 	.def("GetTargetPosAndVel", &Character::GetTargetPosAndVel)
 	.def("GetSkeleton", &Character::GetSkeleton)
 	//.def("GetMuscles", &Character::GetMuscles)
+	.def("getMuscleAt", &Character::getMuscleAt)
 	.def("hasMuscles", &Character::hasMuscles)
 	.def("GetNumOfMuscles", &Character::GetNumOfMuscles)
 	.def("GetEndEffectors", &Character::GetEndEffectors)
-	.def("GetBVH", &Character::GetBVH);
+	.def("GetBVH_GetMaxTime", &Character::GetBVH_GetMaxTime)
+	.def("GetBVH", &Character::GetBVH)
+	.def("GetBVH_GetBVHMap", &Character::GetBVH_GetBVHMap)
+	.def("GetEndEffectors_size", &Character::GetEndEffectors_size)
+	.def("GetEndEffectors_i_getCOM", &Character::GetEndEffectors_i_getCOM);
 }

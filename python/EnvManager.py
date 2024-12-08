@@ -21,7 +21,7 @@ class EnvManager:
 
         self._mEos = np.full(num_envs, None)
         self._mRewards = np.full(num_envs, None)
-        self._mStates = np.full((num_envs, self.GetNumState()), None)
+        self._mStates = np.full((num_envs, self.GetNumState()), 0.0)
         self._mMuscleTorques = np.full((num_envs, self._muscle_torque_cols), None)
         self._mDesiredTorques = np.full((num_envs, self._tau_des_cols), None)
 
@@ -87,8 +87,7 @@ class EnvManager:
     def GetStates(self):
         for id in range(self._mNumEnvs):
             t = self._mEnvs[id].GetState().transpose()
-            self._mStates[id] = t
-        self._mStates = np.array(self._mStates, dtype=np.float64)
+            self._mStates[id] = np.array(t, dtype=np.float64)
         return self._mStates
     
     def SetActions(self, actions):
@@ -102,7 +101,7 @@ class EnvManager:
     
     def GetMuscleTorques(self):
         for id in range(self._mNumEnvs):          
-            self._mMuscleTorques[id] = self._mEnvs[id].GetMuscleTorques(True)
+            self._mMuscleTorques[id] = self._mEnvs[id].GetMuscleTorques()
         return self._mMuscleTorques
     
     def GetDesiredTorques(self):

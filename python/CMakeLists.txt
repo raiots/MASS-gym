@@ -42,6 +42,16 @@ add_library(pyMyWorldPtr SHARED ${srcs})
 target_link_libraries(pyMyWorldPtr ${DART_LIBRARIES} ${PYTHON_LIBRARIES} mss pybind11::module)
 set_target_properties(pyMyWorldPtr PROPERTIES PREFIX "" )
 
+add_library(pyMyDARTHelper SHARED ${srcs})
+
+target_link_libraries(pyMyDARTHelper ${DART_LIBRARIES} ${PYTHON_LIBRARIES} mss pybind11::module)
+set_target_properties(pyMyDARTHelper PROPERTIES PREFIX "" )
+
+add_library(pyMySkeletonPtr SHARED ${srcs})
+
+target_link_libraries(pyMySkeletonPtr ${DART_LIBRARIES} ${PYTHON_LIBRARIES} mss pybind11::module)
+set_target_properties(pyMySkeletonPtr PROPERTIES PREFIX "" )
+
 add_library(pyEnv SHARED ${srcs})
 
 target_link_libraries(pyEnv ${DART_LIBRARIES} ${PYTHON_LIBRARIES} mss pybind11::module)

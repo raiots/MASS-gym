@@ -192,7 +192,7 @@ ApplyForceToBody()
 }
 void
 Muscle::
-Update(bool flag)
+Update()
 {
 	for(int i =0;i<mAnchors.size();i++)
 	{
@@ -435,6 +435,7 @@ PYBIND11_MODULE(pyMuscle, m)
 	.def("GetRelatedBodyNodes", &Muscle::GetRelatedBodyNodes)
 	.def("ComputeJacobians", &Muscle::ComputeJacobians)
 	.def("Getdl_dtheta", &Muscle::Getdl_dtheta)
+	.def("setActivation", &Muscle::setActivation)
 	.def("g", &Muscle::g)
 	.def("g_t", &Muscle::g_t)
 	.def("g_pl", &Muscle::g_pl)

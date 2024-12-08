@@ -31,7 +31,7 @@ public:
 	void AddAnchor(const dart::dynamics::SkeletonPtr& skel,dart::dynamics::BodyNode* bn,const Eigen::Vector3d& glob_pos,int num_related_bodies);
 	void AddAnchor(dart::dynamics::BodyNode* bn,const Eigen::Vector3d& glob_pos);
 	const std::vector<Anchor*>& GetAnchors(){return mAnchors;}
-	void Update(bool flag = false);
+	void Update();
 	void ApplyForceToBody();
 	double GetForce();
 	double Getf_A();
@@ -61,12 +61,13 @@ public:
 	double g(double _l_m);
 	double g_t(double e_t);
 	double g_pl(double _l_m);
-	double g_al(double _l_m);
-	
+	double g_al(double _l_m);	
 
 	double l_mt,l_mt_max;
 	double l_m;
+
 	double activation;
+	double setActivation(double act) { this->activation = act;}
 
 
 	double f0;

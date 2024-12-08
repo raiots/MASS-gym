@@ -1,6 +1,16 @@
 #ifndef __DART_HELPER_H__
 #define __DART_HELPER_H__
 #include "dart/dart.hpp"
+#include "MySkeletonPtr.h"
+
+#include <pybind11/embed.h>
+#include <pybind11/pybind11.h>
+#include <pybind11/numpy.h>
+#include <pybind11/eigen.h>
+#include <pybind11/stl.h>
+#include <Eigen/Core>
+
+
 namespace Eigen {
 
 using Vector1d = Matrix<double, 1, 1>;
@@ -27,7 +37,7 @@ dart::dynamics::RevoluteJoint::Properties* MakeRevoluteJointProperties(const std
 dart::dynamics::WeldJoint::Properties* MakeWeldJointProperties(const std::string& name,const Eigen::Isometry3d& parent_to_joint = Eigen::Isometry3d::Identity(),const Eigen::Isometry3d& child_to_joint = Eigen::Isometry3d::Identity());
 
 dart::dynamics::BodyNode* MakeBodyNode(const dart::dynamics::SkeletonPtr& skeleton,dart::dynamics::BodyNode* parent,dart::dynamics::Joint::Properties* joint_properties,const std::string& joint_type,dart::dynamics::Inertia inertia);
-dart::dynamics::SkeletonPtr BuildFromFile(const std::string& path,bool create_obj=false);
+MySkeletonPtr BuildFromFile(const std::string& path,bool create_obj=false);
 
 
 #endif
