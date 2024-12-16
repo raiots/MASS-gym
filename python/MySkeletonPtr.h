@@ -1,6 +1,7 @@
 #ifndef __MySKELETONPTR_H__
 #define __MySKELETONPTR_H__
 #include "dart/dart.hpp"
+#include "MyBodyNodePtr.h"
 
 #include <pybind11/embed.h>
 #include <pybind11/pybind11.h>
@@ -116,6 +117,32 @@ public:
     Eigen::Vector3d getCOM() {
         return (*this)->getCOM();
     }
+
+    MyBodyNodePtr getBodyNode(const std::string & 	name){
+        return MyBodyNodePtr((*this)->getBodyNode(name));
+    }
+
+    double 	getTimeStep () const{
+        return (*this)->getTimeStep();
+    }
+
+    
+    const Eigen::MatrixXd& getMassMatrix()	const
+    {
+        return (*this)->getMassMatrix();
+    }
+
+    const Eigen::VectorXd& getConstraintForces() const
+    {
+        return (*this)->getConstraintForces();
+    }
+
+    const Eigen::VectorXd& getCoriolisAndGravityForces() const
+    {
+        return (*this)->getCoriolisAndGravityForces();
+    }
+
+
 };
 
 #endif

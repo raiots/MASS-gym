@@ -15,7 +15,5 @@ add_compile_options(-DHAVE_CSTDDEF)
 add_definitions(-DMASS_ROOT_DIR="${CMAKE_HOME_DIRECTORY}")
 set(CMAKE_MODULE_PATH "${CMAKE_HOME_DIRECTORY}/cmake")
 
-add_subdirectory( core )
-add_subdirectory( render )
 add_subdirectory( python )
 

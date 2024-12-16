@@ -1,5 +1,8 @@
 #ifndef __MASS_BVH_H__
 #define __MASS_BVH_H__
+
+#include "MySkeletonPtr.h"
+#include "MyBodyNodePtr.h"
 #include <Eigen/Core>
 #include <string>
 #include <fstream>
@@ -8,12 +11,22 @@
 #include <utility>
 #include <initializer_list>
 #include "dart/dart.hpp"
+#include "MyIsometry3d.h"
+
+#include <pybind11/embed.h>
+#include <pybind11/pybind11.h>
+#include <pybind11/numpy.h>
+#include <pybind11/eigen.h>
+#include <pybind11/stl.h>
+#include <Eigen/Core>
+#include <utility>
+namespace py = pybind11;
+
  
-namespace MASS
-{
 Eigen::Matrix3d R_x(double x);
 Eigen::Matrix3d R_y(double y);
 Eigen::Matrix3d R_z(double z);
+
 class BVHNode
 {
 public:
@@ -26,10 +39,10 @@ public:
 		Yrot=4,
 		Zrot=5
 	}; 
-	static std::map<std::string,MASS::BVHNode::CHANNEL> CHANNEL_NAME;
+	static std::map<std::string, BVHNode::CHANNEL> CHANNEL_NAME;
 
 
-	BVHNode(const std::string& name,BVHNode* parent);
+	BVHNode(const std::string& name,  BVHNode* parent);
 	void SetChannel(int c_offset,std::vector<std::string>& c_name);
 	void Set(const Eigen::VectorXd& m_t);
 	void Set(const Eigen::Matrix3d& R_t);
@@ -48,10 +61,12 @@ private:
 	int mNumChannels;
 	std::vector<BVHNode::CHANNEL> mChannel;
 };
+
+
 class BVH
 {
 public:
-	BVH(const dart::dynamics::SkeletonPtr& skel,const std::map<std::string,std::string>& bvh_map);
+	BVH(const MySkeletonPtr& skel,const std::map<std::string,std::string>& bvh_map);
 
 	Eigen::VectorXd GetMotion(double t);
 
@@ -62,8 +77,12 @@ public:
 	void Parse(const std::string& file,bool cyclic=true);
 	
 	const std::map<std::string,std::string>& GetBVHMap(){return mBVHMap;}
-	const Eigen::Isometry3d& GetT0(){return T0;}
-	const Eigen::Isometry3d& GetT1(){return T1;}
+	//const Eigen::Isometry3d& GetT0(){return T0;}
+	MyIsometry3d GetT0(){return MyIsometry3d(this->T0);}
+
+	//const Eigen::Isometry3d& GetT1(){return T1;}
+	MyIsometry3d GetT1(){return MyIsometry3d(this->T1);}
+
 	bool IsCyclic(){return mCyclic;}
 private:
 	bool mCyclic;
@@ -82,6 +101,5 @@ private:
 	BVHNode* ReadHierarchy(BVHNode* parent,const std::string& name,int& channel_offset,std::ifstream& is);
 };
 
-};
 
 #endif

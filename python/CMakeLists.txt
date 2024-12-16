@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8.6)
 
-project(pyEnv)
+project(mss)
 
 add_compile_options(-fPIC)
 add_compile_options(-std=gnu++11)
@@ -18,9 +18,9 @@ endif()
 find_package(DART REQUIRED COMPONENTS collision-bullet CONFIG)
 find_package(PythonLibs REQUIRED)
 find_package(pybind11 REQUIRED)
+find_package(TinyXML REQUIRED)
 
-link_directories(../core/)
-include_directories(../core/)
+
 
 file(GLOB srcs "*.h" "*.cpp")
 
@@ -29,32 +29,47 @@ include_directories(${DART_INCLUDE_DIRS})
 
 add_library(pyMuscle SHARED ${srcs})
 
-target_link_libraries(pyMuscle ${DART_LIBRARIES} ${PYTHON_LIBRARIES} mss pybind11::module)
+target_link_libraries(pyMuscle ${DART_LIBRARIES} ${PYTHON_LIBRARIES} ${TinyXML_LIBRARIES} pybind11::module)
 set_target_properties(pyMuscle PROPERTIES PREFIX "" )
 
 add_library(pyCharacter SHARED ${srcs})
 
-target_link_libraries(pyCharacter ${DART_LIBRARIES} ${PYTHON_LIBRARIES} mss pybind11::module)
+target_link_libraries(pyCharacter ${DART_LIBRARIES} ${PYTHON_LIBRARIES} ${TinyXML_LIBRARIES} pybind11::module)
 set_target_properties(pyCharacter PROPERTIES PREFIX "" )
 
 add_library(pyMyWorldPtr SHARED ${srcs})
 
-target_link_libraries(pyMyWorldPtr ${DART_LIBRARIES} ${PYTHON_LIBRARIES} mss pybind11::module)
+target_link_libraries(pyMyWorldPtr ${DART_LIBRARIES} ${PYTHON_LIBRARIES} ${TinyXML_LIBRARIES} pybind11::module)
 set_target_properties(pyMyWorldPtr PROPERTIES PREFIX "" )
 
 add_library(pyMyDARTHelper SHARED ${srcs})
 
-target_link_libraries(pyMyDARTHelper ${DART_LIBRARIES} ${PYTHON_LIBRARIES} mss pybind11::module)
+target_link_libraries(pyMyDARTHelper ${DART_LIBRARIES} ${PYTHON_LIBRARIES} ${TinyXML_LIBRARIES} pybind11::module)
 set_target_properties(pyMyDARTHelper PROPERTIES PREFIX "" )
 
 add_library(pyMySkeletonPtr SHARED ${srcs})
 
-target_link_libraries(pyMySkeletonPtr ${DART_LIBRARIES} ${PYTHON_LIBRARIES} mss pybind11::module)
+target_link_libraries(pyMySkeletonPtr ${DART_LIBRARIES} ${PYTHON_LIBRARIES} ${TinyXML_LIBRARIES} pybind11::module)
 set_target_properties(pyMySkeletonPtr PROPERTIES PREFIX "" )
+
+add_library(pyBVH SHARED ${srcs})
+
+target_link_libraries(pyBVH ${DART_LIBRARIES} ${PYTHON_LIBRARIES} ${TinyXML_LIBRARIES} pybind11::module)
+set_target_properties(pyBVH PROPERTIES PREFIX "" )
+
+add_library(pyMyIsometry3d SHARED ${srcs})
+
+target_link_libraries(pyMyIsometry3d ${DART_LIBRARIES} ${PYTHON_LIBRARIES} ${TinyXML_LIBRARIES} pybind11::module)
+set_target_properties(pyMyIsometry3d PROPERTIES PREFIX "" )
+
+add_library(pyMyBodyNodePtr SHARED ${srcs})
+
+target_link_libraries(pyMyBodyNodePtr ${DART_LIBRARIES} ${PYTHON_LIBRARIES} ${TinyXML_LIBRARIES} pybind11::module)
+set_target_properties(pyMyBodyNodePtr PROPERTIES PREFIX "" )
 
 add_library(pyEnv SHARED ${srcs})
 
-target_link_libraries(pyEnv ${DART_LIBRARIES} ${PYTHON_LIBRARIES} mss pybind11::module)
+target_link_libraries(pyEnv ${DART_LIBRARIES} ${PYTHON_LIBRARIES} ${TinyXML_LIBRARIES} pybind11::module)
 set_target_properties(pyEnv PROPERTIES PREFIX "" )
 
 

@@ -36,6 +36,11 @@ PYBIND11_MODULE(pyMySkeletonPtr, m)
     .def("getRootBodyNodeParentJointType", &MySkeletonPtr::getRootBodyNodeParentJointType)
     .def("getBodyNodeByName_getParentJoint_getIndexInSkeleton", &MySkeletonPtr::getBodyNodeByName_getParentJoint_getIndexInSkeleton)
     .def("getBodyNodeByName_getParentJoint_getType", &MySkeletonPtr::getBodyNodeByName_getParentJoint_getType)
-    .def("getCOM", &MySkeletonPtr::getCOM);
+    .def("getCOM", &MySkeletonPtr::getCOM)
+    .def("getBodyNode", &MySkeletonPtr::getBodyNode)
+    .def("getTimeStep", &MySkeletonPtr::getTimeStep)
+    .def("getMassMatrix", &MySkeletonPtr::getMassMatrix)
+    .def("getConstraintForces", &MySkeletonPtr::getConstraintForces)
+    .def("getCoriolisAndGravityForces", &MySkeletonPtr::getCoriolisAndGravityForces);
 }
 

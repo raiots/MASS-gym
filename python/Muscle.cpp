@@ -1,6 +1,6 @@
 #include "Muscle.h"
+#include "MySkeletonPtr.h"
 
-using namespace MASS;
 using namespace dart::dynamics;
 
 std::vector<int> sort_indices(const std::vector<double>& val)
@@ -38,7 +38,7 @@ Muscle(std::string _name,double _f0,double _lm0,double _lt0,double _pen_angle,do
 
 void
 Muscle::
-AddAnchor(const dart::dynamics::SkeletonPtr& skel,dart::dynamics::BodyNode* bn,const Eigen::Vector3d& glob_pos,int num_related_bodies)
+AddAnchor(const MySkeletonPtr& skel,dart::dynamics::BodyNode* bn,const Eigen::Vector3d& glob_pos,int num_related_bodies)
 {
 	std::vector<double> distance;
 	std::vector<Eigen::Vector3d> local_positions;
@@ -418,8 +418,8 @@ PYBIND11_MODULE(pyMuscle, m)
 {
 	py::class_<Muscle>(m, "pyMuscle")
 	.def(py::init<std::string, double, double, double, double, double>())
-	//.def("AddAnchor", static_cast<void (Muscle::*)(const dart::dynamics::SkeletonPtr&, dart::dynamics::BodyNode*, const Eigen::Vector3d&, int)>(&Muscle::AddAnchor))
-	//.def("AddAnchor", static_cast<void (Muscle::*)(dart::dynamics::BodyNode*, const Eigen::Vector3d&)>(&Muscle::AddAnchor))
+	.def("AddAnchor", static_cast<void (Muscle::*)(const MySkeletonPtr&, MyBodyNodePtr, const Eigen::Vector3d&, int)>(&Muscle::AddAnchor))
+	.def("AddAnchor", static_cast<void (Muscle::*)(MyBodyNodePtr, const Eigen::Vector3d&)>(&Muscle::AddAnchor))
 	//.def("GetAnchors", &Muscle::GetAnchors)
 	.def("Update", &Muscle::Update)
 	.def("ApplyForceToBody", &Muscle::ApplyForceToBody)

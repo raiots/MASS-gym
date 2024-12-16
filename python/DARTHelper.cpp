@@ -360,5 +360,7 @@ BuildFromFile(const std::string& path,bool create_obj)
 PYBIND11_MODULE(pyMyDARTHelper, m) {
     m.doc() = "DARTHelper"; // optional module docstring
 
+	m.def("FreeJoint_convertToTransform", &FreeJoint_convertToTransform, "free joint's convert to transform");
+	m.def("FreeJoint_convertToPositions", &FreeJoint_convertToPositions, "free joint's conver to positions");
     m.def("BuildFromFile", &BuildFromFile, "build from file");
 }

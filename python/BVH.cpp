@@ -1,10 +1,11 @@
 #include "BVH.h"
+#include "MySkeletonPtr.h"
 #include <iostream>
 #include <Eigen/Geometry>
 #include "dart/dart.hpp"
 using namespace dart::dynamics;
-namespace MASS
-{
+
+
 Eigen::Matrix3d
 R_x(double x)
 {
@@ -110,7 +111,7 @@ GetNode(const std::string& name)
 
 
 BVH::
-BVH(const dart::dynamics::SkeletonPtr& skel,const std::map<std::string,std::string>& bvh_map)
+BVH(const MySkeletonPtr& skel,const std::map<std::string,std::string>& bvh_map)
 	:mSkeleton(skel),mBVHMap(bvh_map),mCyclic(true)
 {
 
@@ -306,7 +307,7 @@ ReadHierarchy(BVHNode* parent,const std::string& name,int& channel_offset,std::i
 	
 	return new_node;
 }
-std::map<std::string,MASS::BVHNode::CHANNEL> BVHNode::CHANNEL_NAME =
+std::map<std::string, BVHNode::CHANNEL> BVHNode::CHANNEL_NAME =
 {
 	{"Xposition",Xpos},
 	{"XPOSITION",Xpos},
@@ -321,4 +322,20 @@ std::map<std::string,MASS::BVHNode::CHANNEL> BVHNode::CHANNEL_NAME =
 	{"Zrotation",Zrot},
 	{"ZROTATION",Zrot}
 };
-};
+
+
+PYBIND11_MODULE(pyBVH, m)
+{
+	py::class_<BVH>(m, "pyBVH")
+	.def(py::init<const MySkeletonPtr&, const std::map<std::string,std::string>&>())
+	.def("Parse", &BVH::Parse)
+	.def("GetT0", &BVH::GetT0)
+	.def("GetT1", &BVH::GetT1)
+	.def("GetMotion", &BVH::GetMotion)
+	.def("IsCyclic", &BVH::IsCyclic)
+	.def("GetMaxTime", &BVH::GetMaxTime)
+	.def("GetBVHMap", &BVH::GetBVHMap);
+
+	py::class_<BVHNode>(m, "pyBVHNode")
+	.def(py::init<const std::string&, BVHNode*>());
+}

@@ -2,7 +2,7 @@ import numpy as np
 from Isometry3d import Isometry3d
 import os
 import pyMyWorldPtr
-import pyCharacter
+from Character import Character
 import pyMyDARTHelper
 import pyMySkeletonPtr
 
@@ -38,7 +38,7 @@ class Environment:
     def Initialize_from_file(self, meta_file, load_obj):
         with open(meta_file) as ifs:
             lines = ifs.readlines()  
-            character = pyCharacter.pyCharacter()
+            character = Character()
             MASS_ROOT_DIR = os.path.dirname(os.path.dirname(__file__))
             for line in lines:
                 args = line.split()

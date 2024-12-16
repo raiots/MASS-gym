@@ -11,7 +11,6 @@
 #include <utility>
 namespace py = pybind11;
 
-using namespace MASS;
 
 struct Anchor
 {
@@ -28,8 +27,16 @@ class Muscle
 {
 public:
 	Muscle(std::string _name,double f0,double lm0,double lt0,double pen_angle,double lmax);
-	void AddAnchor(const dart::dynamics::SkeletonPtr& skel,dart::dynamics::BodyNode* bn,const Eigen::Vector3d& glob_pos,int num_related_bodies);
+	void AddAnchor(const MySkeletonPtr& skel,dart::dynamics::BodyNode* bn,const Eigen::Vector3d& glob_pos,int num_related_bodies);
+	void AddAnchor(const MySkeletonPtr& skel, MyBodyNodePtr bn_ptr,const Eigen::Vector3d& glob_pos,int num_related_bodies)
+	{
+		this->AddAnchor(skel, bn_ptr.getPtr(), glob_pos, num_related_bodies);
+	}
+
 	void AddAnchor(dart::dynamics::BodyNode* bn,const Eigen::Vector3d& glob_pos);
+	void AddAnchor(MyBodyNodePtr bn_ptr,const Eigen::Vector3d& glob_pos){
+		this->AddAnchor(bn_ptr.getPtr(), glob_pos);
+	}
 	const std::vector<Anchor*>& GetAnchors(){return mAnchors;}
 	void Update();
 	void ApplyForceToBody();

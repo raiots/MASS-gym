@@ -2,6 +2,7 @@
 #define __DART_HELPER_H__
 #include "dart/dart.hpp"
 #include "MySkeletonPtr.h"
+#include "MyIsometry3d.h"
 
 #include <pybind11/embed.h>
 #include <pybind11/pybind11.h>
@@ -38,6 +39,20 @@ dart::dynamics::WeldJoint::Properties* MakeWeldJointProperties(const std::string
 
 dart::dynamics::BodyNode* MakeBodyNode(const dart::dynamics::SkeletonPtr& skeleton,dart::dynamics::BodyNode* parent,dart::dynamics::Joint::Properties* joint_properties,const std::string& joint_type,dart::dynamics::Inertia inertia);
 MySkeletonPtr BuildFromFile(const std::string& path,bool create_obj=false);
+
+
+MyIsometry3d FreeJoint_convertToTransform(const Eigen::Vector6d & 	_positions)
+{
+    return MyIsometry3d(dart::dynamics::FreeJoint::convertToTransform(_positions));
+}	
+
+Eigen::Vector6d FreeJoint_convertToPositions(Eigen::Matrix4d & 	_tf	)	
+{
+    Eigen::Isometry3d m;
+    m.linear() = _tf.block<3, 3>(0, 0);
+    m.translation() = _tf.block<3, 1>(0, 3);
+    return  dart::dynamics::FreeJoint::convertToPositions(m);
+}
 
 
 #endif
