@@ -19,6 +19,8 @@ import torchvision.transforms as T
 import numpy as np
 # import pymss
 
+import cProfile, pstats, io
+
 from EnvManager import EnvManager
 
 from Model import *
@@ -195,6 +197,9 @@ class PPO(object):
 				tmp = np.array(tmp, dtype=np.float64)			
 				mt = Tensor(tmp)
 				for i in range(self.num_simulation_per_control//2):
+					print('step i = {}'.format(i))
+					pr = cProfile.Profile()
+					pr.enable()
 					tmp = self.env.GetDesiredTorques()
 					tmp = np.array(tmp, dtype=np.float64)
 					dt = Tensor(tmp)
@@ -202,6 +207,12 @@ class PPO(object):
 					self.env.SetActivationLevels(activations)
 
 					self.env.Steps(2)
+					pr.disable()
+					s = io.StringIO()
+					sortby = 'cumulative'
+					ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
+					ps.print_stats()
+					print(s.getvalue())
 			else:
 				self.env.StepsAtOnce()
 

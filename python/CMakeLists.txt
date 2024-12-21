@@ -27,16 +27,6 @@ file(GLOB srcs "*.h" "*.cpp")
 include_directories(${PYTHON_INCLUDE_DIR})
 include_directories(${DART_INCLUDE_DIRS})
 
-add_library(pyMuscle SHARED ${srcs})
-
-target_link_libraries(pyMuscle ${DART_LIBRARIES} ${PYTHON_LIBRARIES} ${TinyXML_LIBRARIES} pybind11::module)
-set_target_properties(pyMuscle PROPERTIES PREFIX "" )
-
-add_library(pyCharacter SHARED ${srcs})
-
-target_link_libraries(pyCharacter ${DART_LIBRARIES} ${PYTHON_LIBRARIES} ${TinyXML_LIBRARIES} pybind11::module)
-set_target_properties(pyCharacter PROPERTIES PREFIX "" )
-
 add_library(pyMyWorldPtr SHARED ${srcs})
 
 target_link_libraries(pyMyWorldPtr ${DART_LIBRARIES} ${PYTHON_LIBRARIES} ${TinyXML_LIBRARIES} pybind11::module)

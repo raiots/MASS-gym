@@ -27,6 +27,7 @@ class MyIsometry3d
 
     public:
     MyIsometry3d(Eigen::Isometry3d);
+
     MyIsometry3d();
     void reset_translation_y(){
         this->_m.translation()[1] = 0;

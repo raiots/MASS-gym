@@ -15,6 +15,7 @@
 namespace py = pybind11;
 
 using namespace dart::dynamics;
+class MyBodyNodePtr;
 
 
 class MySkeletonPtr: public SkeletonPtr{
@@ -63,6 +64,32 @@ public:
 
     void computeForwardKinematics(bool _updateTransforms=true, bool _updateVels=true, bool _updateAccs=true){
         (*this)->computeForwardKinematics(_updateTransforms, _updateVels, _updateAccs);
+    }
+
+
+    Eigen::Isometry3d getBodyNode_i_getTransform(int i) const{
+        return (*this)->getBodyNode(i)->getTransform();
+    }
+
+    Eigen::Matrix4d getBodyNode_i_getTransform_to_matrix(int i) const{
+        Eigen::Isometry3d a = (*this)->getBodyNode(i)->getTransform();
+        Eigen::Matrix4d b = Eigen::Matrix4d::Zero(4, 4);
+        b.block<3, 3>(0, 0) = a.linear();
+        b.block<3, 1>(0, 3) = a.translation();
+        return b;
+    }
+
+    Eigen::Matrix4d getBodyNode_i_getTransform_inverse_to_matrix(int i) const{
+        Eigen::Isometry3d a = (*this)->getBodyNode(i)->getTransform().inverse();
+        Eigen::Matrix4d b = Eigen::Matrix4d::Zero(4, 4);
+        b.block<3, 3>(0, 0) = a.linear();
+        b.block<3, 1>(0, 3) = a.translation();
+        return b;
+    }
+
+    const Eigen::Isometry3d& getBodyNode_i_getParentJoint_getTransformFromChildBodyNode(int i) const
+    {
+        return (*this)->getBodyNode(i)->getParentJoint()->getTransformFromChildBodyNode();
     }
 
     double getBodyNode0TransformTranslation_y()
@@ -118,14 +145,15 @@ public:
         return (*this)->getCOM();
     }
 
-    MyBodyNodePtr getBodyNode(const std::string & 	name){
-        return MyBodyNodePtr((*this)->getBodyNode(name));
-    }
+    MyBodyNodePtr getBodyNode(const std::string & 	name);
 
     double 	getTimeStep () const{
         return (*this)->getTimeStep();
     }
 
+    MyBodyNodePtr getBodyNode_i(	std::size_t 	_idx	);
+
+    Eigen::Matrix<double, 3, 1> getLinearJacobian(MyBodyNodePtr _node_ptr, 	const Eigen::Vector3d& _localOffset) const;
     
     const Eigen::MatrixXd& getMassMatrix()	const
     {
@@ -141,6 +169,33 @@ public:
     {
         return (*this)->getCoriolisAndGravityForces();
     }
+
+    std::size_t getNumJoints()	const
+    {
+        return (*this)->getNumJoints();
+    }
+
+    
+    Joint* getDof_i_getJoint(int i)
+    {
+        return (*this)->getDof(i)->getJoint();
+    }	
+
+    
+    Joint* getJoint(std::size_t	_idx)
+    {
+        return (*this)->getJoint(_idx);
+    }	
+
+    Eigen::Matrix4d getBodyNode_i_getTransform_mul_getParentJoint_getTransformFromChildBodyNode(int i)
+    {
+        Eigen::Isometry3d a = (*this)->getBodyNode(i)->getTransform() * (*this)->getBodyNode(i)->getParentJoint()->getTransformFromChildBodyNode();
+        Eigen::Matrix4d b = Eigen::Matrix4d::Zero(4, 4);
+        b.block<3, 3>(0, 0) = a.linear();
+        b.block<3, 1>(0, 3) = a.translation();
+        return b;
+    }
+
 
 
 };

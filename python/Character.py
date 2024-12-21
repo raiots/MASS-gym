@@ -1,10 +1,10 @@
 import numpy as np
 import pyMyDARTHelper
 import pyMySkeletonPtr
-import pyMuscle
 import pyBVH
 import pyMyIsometry3d
 import pyMyBodyNodePtr
+from Muscle import Muscle
 import xml.etree.ElementTree as ET
 
 from Isometry3d import Isometry3d
@@ -55,7 +55,7 @@ class Character:
             pa = float(unit.attrib['pen_angle'])
             lmax = float(unit.attrib['lmax'])      
 
-            self._mMuscles.append(pyMuscle.pyMuscle(name,f0,lm,lt,pa,lmax)) 
+            self._mMuscles.append(Muscle(name,f0,lm,lt,pa,lmax)) 
             all_waypoints = unit.findall('Waypoint')  
             num_waypoints = len(all_waypoints)
 
@@ -64,9 +64,9 @@ class Character:
                 body = waypoint.attrib['body']
                 glob_pos = np.fromstring(waypoint.attrib['p'], dtype=np.float64, sep=' ')
                 if i == 0 or i == num_waypoints - 1:
-                    self._mMuscles[-1].AddAnchor(self._mSkeleton.getBodyNode(body), glob_pos)
+                    self._mMuscles[-1].AddAnchor3(self._mSkeleton.getBodyNode(body), glob_pos)
                 else:
-                    self._mMuscles[-1].AddAnchor(self._mSkeleton, self._mSkeleton.getBodyNode(body), glob_pos, 2)
+                    self._mMuscles[-1].AddAnchor5(self._mSkeleton, self._mSkeleton.getBodyNode(body), glob_pos, 2)
                 i += 1
 
     def LoadBVH(self, path, cyclic):

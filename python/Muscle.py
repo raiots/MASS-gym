@@ -1,9 +1,11 @@
 import numpy as np
+import pyMyIsometry3d
 from Anchor import Anchor
+from Helper import affine3d
 
 class Muscle:
     def __init__(self, name, f0, lm0, lt0, pen_angle, lmax):
-        self._l_mt0 = 0.0
+        self._l_mt0 = 1.0
         self._l_mt = 1.0
         self._activation = 0.0
         self._f_toe = 0.33 
@@ -24,19 +26,20 @@ class Muscle:
 
         self._mAnchors = list()
         self._num_related_dofs = 0
-        self._related_dof_indices = None
-        self._mCachedAnchorPositions = None
+        self._related_dof_indices = []
+        self._mCachedAnchorPositions = []
         self._mCachedJs = None
 
         
-    def AddAnchor(self, skel, bn, glob_pos, num_related_bodies):
+    def AddAnchor5(self, skel, bn, glob_pos, num_related_bodies):
         distance = np.full(skel.getNumBodyNodes(), 0.0)
-        local_positions = np.full(skel.getNumBodyNodes(), None)
+        local_positions = np.full((3, skel.getNumBodyNodes()), None)
 
         for i in range(skel.getNumBodyNodes()):
-            T = skel.getBodyNode(i).getTransform() * skel.getBodyNode(i).getParentJoint().getTransformFromChildBodyNode()
-            local_positions[i] = skel.getBodyNode(i).getTransform().inverse() * glob_pos
-            distance[i] = (glob_pos - T.translation()).norm()
+            T = skel.getBodyNode_i_getTransform_mul_getParentJoint_getTransformFromChildBodyNode(i)
+            #T = pyMyIsometry3d.pyMyIsometry3d(skel.getBodyNode_i_getTransform(i)).to_matrix() @ pyMyIsometry3d.MyIsometry3d().to_matrix()
+            local_positions[:, i] = affine3d(skel.getBodyNode_i_getTransform_inverse_to_matrix(i), glob_pos)
+            distance[i] = np.linalg.norm(glob_pos - T[0:3, 3])
         
         index_sort_by_distance = np.argsort(distance)
 
@@ -49,93 +52,99 @@ class Muscle:
         if distance[index_sort_by_distance[0]] < 0.08:
             lbs_weights.append(1.0 / np.sqrt(distance[index_sort_by_distance[0]]))
             total_weight += lbs_weights[0]
-            lbs_body_nodes.append(skel.getBodyNode(index_sort_by_distance))
-            lbs_local_positions.append(local_positions[index_sort_by_distance[0]])
+            lbs_body_nodes.append(skel.getBodyNode_i(index_sort_by_distance[0]))
+            lbs_local_positions.append(local_positions[:, index_sort_by_distance[0]])
 
-            if lbs_body_nodes[0].getParentBodyNode is not None:
+            tmp = lbs_body_nodes[0].getParentBodyNode()
+            if not lbs_body_nodes[0].getParentBodyNode().isNull():
                 bn_parent = lbs_body_nodes[0].getParentBodyNode()
-                lbs_weights.append(1.0 / np.sqrt(distance[index_sort_by_distance[0]]))
-                total_weight += lbs_weights(1)
+                lbs_weights.append(1.0 / np.sqrt(distance[bn_parent.getIndexInSkeleton()]))
+                total_weight += lbs_weights[1]
                 lbs_body_nodes.append(bn_parent)
-                lbs_local_positions.append(local_positions[bn_parent.getIndexInSkeleton()])
+                lbs_local_positions.append(local_positions[:, bn_parent.getIndexInSkeleton()])
             
         else:
             total_weight = 1.0
             lbs_weights.append(1.0)
             lbs_body_nodes.append(bn)
-            lbs_local_positions.append(bn.getTransform().inverse() * glob_pos)
+            lbs_local_positions.append(affine3d(bn.getTransform_inverse(),  glob_pos))
 
-        for i in range(lbs_body_nodes.size):
-            lbs_weights(i) /= total_weight
+        for i in range(len(lbs_body_nodes)):
+            lbs_weights[i] /= total_weight
     
         self._mAnchors.append(Anchor(lbs_body_nodes, lbs_local_positions, lbs_weights))
 
-        n = self._mAnchors.size
+        n = len(self._mAnchors)
         if n > 1:
-            self._l_mt0 += (self._mAnchors[n - 1].GetPoint() - self._mAnchors[n - 2].GetPoint()).norm()
+            self._l_mt0 += np.linalg.norm(self._mAnchors[n - 1].GetPoint() - self._mAnchors[n - 2].GetPoint())
         
-        self._mCachedAnchorPositions = np.full(n, 0)
+        self._mCachedAnchorPositions = np.full((3, n), 0)
         self.Update()
 
         Jt = self.GetJacobianTranspose()
-        Ap = self.GetForceJacobianAndPassive()
-        JtA = Jt * Ap.first
+        Ap, p = self.GetForceJacobianAndPassive()
+        JtA = Jt @ Ap
         self._num_related_dofs = 0
         self._related_dof_indices.clear()
 
-        for i in range(JtA.rows()):
-            if np.abs(JtA(i) > 1e-3):
+        for i in range(JtA.shape[0]):
+            if np.abs(JtA[i]) > 1e-3:
                 self._num_related_dofs += 1
                 self._related_dof_indices.append(i)
 
 
-    def AddAnchor(self, bn, glob_pos):
+    def AddAnchor3(self, bn, glob_pos):
         lbs_body_nodes = list()
         lbs_local_positions = list()
         lbs_weights = list()
 
         lbs_body_nodes.append(bn)
-        lbs_local_positions.append(bn.getTransform().inverse() * glob_pos)
+        transform_inv = bn.getTransform_inverse()
+
+
+        lbs_local_positions.append(
+                transform_inv[0:3, 0:3] @ glob_pos + transform_inv[0:3, 3])
         lbs_weights.append(1.0)
         
         self._mAnchors.append(Anchor(lbs_body_nodes, lbs_local_positions, lbs_weights))
 
-        n = self._mAnchors.size
+        n = len(self._mAnchors)
         if n > 1:
-            self._l_mt0 += (self._mAnchors[n - 1].GetPoint() - self._mAnchors[n - 2].GetPoint()).norm()
+            self._l_mt0 += np.linalg.norm(self._mAnchors[n - 1].GetPoint() - self._mAnchors[n - 2].GetPoint())
         
-        self._mCachedAnchorPositions = np.full(n, 0)
+        self._mCachedAnchorPositions = np.full((3, n), 0)
         self.Update()
 
         Jt = self.GetJacobianTranspose()
-        Ap = self.GetForceJacobianAndPassive()
-        JtA = Jt * Ap.first
+        Ap, p = self.GetForceJacobianAndPassive()
+        JtA = Jt @ Ap
         self._num_related_dofs = 0
         self._related_dof_indices.clear()
 
-        for i in range(JtA.rows()):
-            if np.abs(JtA(i) > 1e-3):
+        for i in range(JtA.shape[0]):
+            if np.abs(JtA[i]) > 1e-3:
                 self._num_related_dofs += 1
                 self._related_dof_indices.append(i)
 
     def ApplyForceToBody(self):
         f = self.GetForce()
 
-        for i in range(self._mAnchors.size - 1):
-            dir = self._mCachedAnchorPositions(i + 1) - self._mCachedAnchorPositions(i)
-            dir.normalize()
+        for i in range(len(self._mAnchors) - 1):
+            dir = self._mCachedAnchorPositions[:,i + 1] - self._mCachedAnchorPositions[:, i]
+            dir = dir / (np.linalg.norm(dir) + 1e-3)
             dir = f * dir
-            self._mAnchors[i].bodynodes(0).addExtForce(dir, self._mCachedAnchorPositions(i), False, False)
+            self._mAnchors[i].bodynodes(0).addExtForce(dir, self._mCachedAnchorPositions[:, i], False, False)
 
-        for i in range(1, self._mAnchors.size):
-            dir = self._mCachedAnchorPositions(i - 1) - self._mCachedAnchorPositions(i)
-            dir.normalize()
+        for i in range(1, len(self._mAnchors)):
+            dir = self._mCachedAnchorPositions[:, i - 1] - self._mCachedAnchorPositions[:, i]
+            dir = dir / (np.linalg.norm(dir) + 1e-3)
             dir = f * dir
-            self._mAnchors[i].bodynodes(0).addExtForce(dir, self._mCachedAnchorPositions(i), False, False)
+            self._mAnchors[i].bodynodes(0).addExtForce(dir, self._mCachedAnchorPositions[:, i], False, False)
         
     def Update(self):
-        for i in range(self._mAnchors.size):
-            self._mCachedAnchorPositions(i) = self._mAnchors(i).GetPoint()
+        for i in range(len(self._mAnchors)):
+            p = self._mAnchors[i].GetPoint()
+            self._mCachedAnchorPositions[:, i] = self._mAnchors[i].GetPoint()
         
         self._l_mt = self.Getl_mt()
         self._l_mt = self._l_mt - self._l_t0
@@ -151,50 +160,54 @@ class Muscle:
     
     def Getl_mt(self):
         self._l_mt = 0.0
-        for i in range(1, self._mAnchors.size):
-            self._l_mt += (self._mCachedAnchorPositions(i) - self._mCachedAnchorPositions(i - 1)).norm()
+        for i in range(1, len(self._mAnchors)):
+            self._l_mt += np.linalg.norm(self._mCachedAnchorPositions[:, i] - self._mCachedAnchorPositions[:, i - 1])
         return self._l_mt / self._l_mt0
     
     def GetRelatedJtA(self):
         Jt = self.GetJacobianTranspose()
-        A = self.GetForceJacobianAndPassive().first()
+        A, p = self.GetForceJacobianAndPassive()
         JtA = Jt * A
         JtA_reduced = np.full(self._num_related_dofs, 0)
         for i in range(self._num_related_dofs):
-            JtA_reduced(i) = JtA(self._related_dof_indices(i))  
+            JtA_reduced[i] = JtA(self._related_dof_indices(i))  
         
         return JtA_reduced
     
     def GetJacobianTranspose(self):
         skel = self._mAnchors[0].bodynodes(0).getSkeleton()
         dof = skel.getNumDofs()
-        Jt = np.full((dof, 3 * self._mAnchors.size), 0)
+        Jt = np.full((dof, 3 * len(self._mAnchors)), 0)
 
-        for i in range(self._mAnchors.size):
-            Jt[0 : dof][i * 3 : i * 3 + 3] = skel.getLinearJacobian(self._mAnchors[i].bodynodes(0), 
-                                                                  self._mAnchors[i].bodynodes(0).getTransform().inverse() * 
-                                                                  self._mCachedAnchorPositions[i]).transpose()   
+        for i in range(len(self._mAnchors)):
+            tm_inv = self._mAnchors[i].bodynodes(0).getTransform_inverse()
+            #Jt[0 : dof][i * 3 : i * 3 + 3] = skel.getLinearJacobian(self._mAnchors[i].bodynodes(0), 
+            #                                                      tm_inv[0:3, 0:3] @ self._mCachedAnchorPositions[:, i] + tm_inv[0:3, 3]).transpose()   
+            tmp1 = skel.getLinearJacobian(self._mAnchors[i].bodynodes(0), tm_inv[0:3, 0:3] @ self._mCachedAnchorPositions[:, i] + tm_inv[0:3, 3])
+            tmp2 = tmp1.transpose()
+            Jt[0 : dof, i * 3 : i * 3 + 3] = tmp2
+        return Jt
             
     def GetForceJacobianAndPassive(self):
         f_a = self.Getf_A()
         f_p = self.Getf_p()
 
         force_dir = list()
-        for i in range(self._mAnchors.size):
-            force_dir.append(np.full(3, 0))
-        for i in range(self._mAnchors.size-1):
-            dir = self._mCachedAnchorPositions[i+1] - self._mCachedAnchorPositions[i]
-            dir.normalize()
+        for i in range(len(self._mAnchors)):
+            force_dir.append(np.full(3, 0.0, dtype=np.float64))
+        for i in range(len(self._mAnchors) - 1):
+            dir = self._mCachedAnchorPositions[:, i+1] - self._mCachedAnchorPositions[:, i]
+            dir = dir / (np.linalg.norm(dir) + 1e-3)
             force_dir[i] += dir
         
-        for i in range(1, self._mAnchors.size):
-            dir = self._mCachedAnchorPositions[i-1] - self._mCachedAnchorPositions[i]
-            dir.normalize()
+        for i in range(1, len(self._mAnchors)):
+            dir = self._mCachedAnchorPositions[:, i-1] - self._mCachedAnchorPositions[:, i]
+            dir = dir / (np.linalg.norm(dir) + 1e-3)
             force_dir[i] += dir
         
-        A = np.full(3 * self._mAnchors.size, 0)
-        p = np.full(3 * self._mAnchors.size, 0)
-        for i in range(self._mAnchors.size):
+        A = np.full(3 * len(self._mAnchors), 0)
+        p = np.full(3 * len(self._mAnchors), 0)
+        for i in range(len(self._mAnchors)):
             A[i * 3 : i * 3 + 3] = f_a * force_dir[i]
             p[i * 3 : i * 3 + 3] = f_p * force_dir[i]
         
@@ -229,25 +242,25 @@ class Muscle:
     def ComputeJacobians(self):
         skel = self._mAnchors[0].bodynodes(0).getSkeleton()
         dof = skel.getNumDofs()
-        self._mCachedJs = np.full((self._mAnchors.size, 3, skel.getNumDofs()), 0)
-        for i in range(self._mAnchors.size):
+        self._mCachedJs = np.full((len(self._mAnchors), 3, skel.getNumDofs()), 0)
+        for i in range(len(self._mAnchors)):
             for j in range(self._mAnchors(i).num_related_bodies):
-                self._mCachedJs[i] += self._mAnchors(i).weights(j) * skel.getLinearJacobian(self._mAnchors(i).bodynodes(j), 
+                self._mCachedJs[i] += self._mAnchors(i).weights(j) @ skel.getLinearJacobian(self._mAnchors(i).bodynodes(j), 
                                                                                               self._mAnchors(i).local_positions(j))
 
     def Getdl_dtheta(self):
         self.ComputeJacobians()
         skel = self._mAnchors[0].bodynodes(0).getSkeleton()
         dl_dtheta = np.full(skel.getNumDofs(), 0)
-        for i in range(self._mAnchors.size - 1):
-            pi = self._mCachedAnchorPositions[i + 1] - self._mCachedAnchorPositions[i]
+        for i in range(len(self._mAnchors) - 1):
+            pi = self._mCachedAnchorPositions[:, i + 1] - self._mCachedAnchorPositions[:, i]
             dpi_dtheta = self._mCachedJs[i + 1] - self._mCachedJs[i]
             dli_d_theta = dpi_dtheta.transpose() * pi / (self._l_mt0 * pi.norm())
             dl_dtheta += dli_d_theta
         
-        for i in range(dl_dtheta.rows()):
-            if np.abs(dl_dtheta(i)) < 1e-6:
-                dl_dtheta(i) = 0
+        for i in range(dl_dtheta.shape[0]):
+            if np.abs(dl_dtheta[i]) < 1e-6:
+                dl_dtheta[i] = 0
         
         return dl_dtheta
     
@@ -273,6 +286,12 @@ class Muscle:
     
     def g_al(self, l_m_):
         return np.exp(-(l_m_ - 1.0) * (l_m_ - 1.0) / self._gamma)
+
+    def GetNumRelatedDofs(self):
+        return self._num_related_dofs
+
+    def setActivation(self, act):
+        self._activation = act
     
     
             

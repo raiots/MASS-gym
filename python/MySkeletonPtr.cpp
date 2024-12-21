@@ -11,6 +11,19 @@ MySkeletonPtr::MySkeletonPtr(const SkeletonPtr& ptr): SkeletonPtr(ptr)
    
 }
 
+MyBodyNodePtr MySkeletonPtr::getBodyNode(const std::string & 	name){
+    return MyBodyNodePtr((*this)->getBodyNode(name));
+}
+
+MyBodyNodePtr MySkeletonPtr::getBodyNode_i(	std::size_t _idx){
+    return MyBodyNodePtr((*this)->getBodyNode(_idx));
+}
+
+Eigen::Matrix<double, 3, 1> MySkeletonPtr::getLinearJacobian(MyBodyNodePtr _node_ptr, 	const Eigen::Vector3d& _localOffset) const
+{
+    return (*this)->getLinearJacobian(static_cast<const JacobianNode *>(_node_ptr.getPtr()), _localOffset);
+}
+
 
 PYBIND11_MODULE(pyMySkeletonPtr, m)
 {
@@ -38,9 +51,18 @@ PYBIND11_MODULE(pyMySkeletonPtr, m)
     .def("getBodyNodeByName_getParentJoint_getType", &MySkeletonPtr::getBodyNodeByName_getParentJoint_getType)
     .def("getCOM", &MySkeletonPtr::getCOM)
     .def("getBodyNode", &MySkeletonPtr::getBodyNode)
+    .def("getBodyNode_i", &MySkeletonPtr::getBodyNode_i)
     .def("getTimeStep", &MySkeletonPtr::getTimeStep)
     .def("getMassMatrix", &MySkeletonPtr::getMassMatrix)
     .def("getConstraintForces", &MySkeletonPtr::getConstraintForces)
-    .def("getCoriolisAndGravityForces", &MySkeletonPtr::getCoriolisAndGravityForces);
+    .def("getCoriolisAndGravityForces", &MySkeletonPtr::getCoriolisAndGravityForces)
+    .def("getBodyNode_i_getTransform", &MySkeletonPtr::getBodyNode_i_getTransform)
+    .def("getBodyNode_i_getTransform_to_matrix", &MySkeletonPtr::getBodyNode_i_getTransform_to_matrix)
+    .def("getBodyNode_i_getParentJoint_getTransformFromChildBodyNode", &MySkeletonPtr::getBodyNode_i_getParentJoint_getTransformFromChildBodyNode)
+    .def("getBodyNode_i_getTransform_mul_getParentJoint_getTransformFromChildBodyNode", &MySkeletonPtr::getBodyNode_i_getTransform_mul_getParentJoint_getTransformFromChildBodyNode)
+    .def("getLinearJacobian", &MySkeletonPtr::getLinearJacobian)
+    .def("getNumJoints", &MySkeletonPtr::getNumJoints)
+    .def("getJoint", &MySkeletonPtr::getJoint)
+    .def("getBodyNode_i_getTransform_inverse_to_matrix", &MySkeletonPtr::getBodyNode_i_getTransform_inverse_to_matrix);
 }
 

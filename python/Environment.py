@@ -98,7 +98,6 @@ class Environment:
             self._mRootJointDof = 0
         
         self._mNumActiveDof = self._mCharacter.GetSkeleton().getNumDofs() - self._mRootJointDof
-
         if(self._mUseMuscle):
             num_total_related_dofs = 0
             numMuscles = self._mCharacter.GetNumOfMuscles()
@@ -203,7 +202,7 @@ class Environment:
         for i in range(numMuscles):
             muscle = self._mCharacter.getMuscleAt(i)
             muscle.Update()
-            JtA_i = muscle.GetRelatedJtA(False)
+            JtA_i = muscle.GetRelatedJtA()
             self._mCurrentMuscleTuple['JtA'][index : index + JtA_i.size] = JtA_i
             index += JtA_i.size
 

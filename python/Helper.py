@@ -24,4 +24,7 @@ def R_z(z):
                   [0, 0, 1]])
     return R
 
+def affine3d(A, x):
+    return A[0:3, 0:3] @ x + A[0:3, 3]
+
 
