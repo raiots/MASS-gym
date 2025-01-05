@@ -48,6 +48,12 @@ public:
 	std::vector<dart::dynamics::BodyNode*> GetRelatedBodyNodes();
 	void ComputeJacobians();
 	Eigen::VectorXd Getdl_dtheta();
+	std::string info(){
+		std::ostringstream stringStream;
+  		stringStream << "update counter=" << _update_counter << std::endl;
+  		std::string copyOfStr = stringStream.str();
+		return copyOfStr;
+	}
 public:
 	std::string name;
 	std::vector<Anchor*> mAnchors;
@@ -76,6 +82,7 @@ public:
 	double f_toe,e_toe,k_toe,k_lin,e_t0; //For g_t
 	double k_pe,e_mo; //For g_pl
 	double gamma; //For g_al
+	int _update_counter;
 };
 
 #endif

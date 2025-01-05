@@ -87,6 +87,7 @@ void
 Character::
 LoadBVH(const std::string& path,bool cyclic)
 {
+	//std::cout << "DBG-C++: LoadBVH, path="<<path << "cyclic=" << cyclic << std::endl;
 	if(mBVH ==nullptr){
 		std::cout<<"Initialize BVH class first"<<std::endl;
 		return;
@@ -134,14 +135,20 @@ Eigen::VectorXd
 Character::
 GetTargetPositions(double t,double dt)
 {
+	Eigen::IOFormat HeavyFmt(Eigen::FullPrecision, 0, ", ", "; ", "[", "]", "[", "]");
+
 	Eigen::VectorXd p = mBVH->GetMotion(t);	
+
+	//std::cout << "DBG-C++: p=" << p.format(HeavyFmt) << std::endl;
+
 	Eigen::Isometry3d T_current = dart::dynamics::FreeJoint::convertToTransform(p.head<6>());
 	T_current = mBVH->GetT0().inverse()*T_current;
 	Eigen::Isometry3d T_head = mTc*T_current;
 	Eigen::Vector6d p_head = dart::dynamics::FreeJoint::convertToPositions(T_head);
 	p.head<6>() = p_head;
 	
-	
+	//std::cout << "DBG-C++: p.head=" << p_head.format(HeavyFmt) << std::endl;
+
 	if(mBVH->IsCyclic())
 	{
 		double t_mod = std::fmod(t, mBVH->GetMaxTime());
@@ -180,7 +187,11 @@ std::pair<Eigen::VectorXd,Eigen::VectorXd>
 Character::
 GetTargetPosAndVel(double t,double dt)
 {
+	//Eigen::IOFormat HeavyFmt(Eigen::FullPrecision, 0, ", ", "; ", "[", "]", "[", "]");
+
 	Eigen::VectorXd p = this->GetTargetPositions(t,dt);
+	//std::cout << "DBG-C++: p=" << p.format(HeavyFmt) << std::endl;
+
 	Eigen::Isometry3d Tc = mTc;
 	Eigen::VectorXd p1 = this->GetTargetPositions(t+dt,dt);
 	mTc = Tc;
@@ -205,6 +216,7 @@ PYBIND11_MODULE(pyCharacter, m)
 	.def("GetSkeleton", &Character::GetSkeleton)
 	//.def("GetMuscles", &Character::GetMuscles)
 	.def("getMuscleAt", &Character::getMuscleAt)
+	.def("setMuscleAt", &Character::setMuscleAt)
 	.def("hasMuscles", &Character::hasMuscles)
 	.def("GetNumOfMuscles", &Character::GetNumOfMuscles)
 	.def("GetEndEffectors", &Character::GetEndEffectors)

@@ -353,7 +353,7 @@ BuildFromFile(const std::string& path,bool create_obj)
 		}
 	}
 
-	std::cout<<"(DOFs : "<<skel->getNumDofs()<<")"<< std::endl;
+	std::cout<<"DBG-C++: (DOFs : "<<skel->getNumDofs()<<")"<< std::endl;
 	return skel;
 }
 

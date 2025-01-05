@@ -19,6 +19,8 @@ import torchvision.transforms as T
 import numpy as np
 # import pymss
 
+from dbg import actions_001, states_001, values_001
+
 from EnvManager import EnvManager
 
 from Model import *
@@ -177,6 +179,10 @@ class PPO(object):
 		rewards = [None]*self.num_slaves
 		states_next = [None]*self.num_slaves
 		states = self.env.GetStates()
+
+		#states = states_001		
+		#print("DBG:states after override={}".format(np.array2string(states, precision=5, separator=',', suppress_small=True)), flush=True)
+
 		local_step = 0
 		terminated = [False]*self.num_slaves
 		counter = 0
@@ -187,21 +193,45 @@ class PPO(object):
 			a_dist,v = self.model(Tensor(states))
 			actions = a_dist.sample().cpu().detach().numpy()
 
+			#actions = actions_001
+			np.set_printoptions(precision=3, suppress=True, linewidth=10000, edgeitems=30)
+			#print('DBG: action after override={}'.format(np.array2string(actions, precision=5, separator=',', threshold=10, suppress_small=True)), flush=True)
+
 			logprobs = a_dist.log_prob(Tensor(actions)).cpu().detach().numpy().reshape(-1)
 			values = v.cpu().detach().numpy().reshape(-1)
+
+			#values = values_001
+			#print('DBG:values={}'.format(values), flush=True)
+
 			self.env.SetActions(actions)
 			if self.use_muscle:
+				#print('DBG: main->GetMuscleTorques', flush=True)
 				tmp = self.env.GetMuscleTorques()
 				tmp = np.array(tmp, dtype=np.float64)			
 				mt = Tensor(tmp)
+				
+				#print('DBG:mt={}'.format(tmp), flush=True)
+				#print('DBG-PYTHON: before for looping')
+				#self.env.GetRewards()
+
 				for i in range(self.num_simulation_per_control//2):
+					#print('DBG-PYTHON: before GetDesiredTorques')
+					#self.env.GetRewards()
 					tmp = self.env.GetDesiredTorques()
+					#print('DBG-PYTHON: after GetDesiredTorques')
+					#self.env.GetRewards()
 					tmp = np.array(tmp, dtype=np.float64)
 					dt = Tensor(tmp)
 					activations = self.muscle_model(mt,dt).cpu().detach().numpy()
 					self.env.SetActivationLevels(activations)
 
+					#print('DBG-PYTHON: before 2 steps')
+					#self.env.GetRewards()
+
 					self.env.Steps(2)
+
+					#print('DBG-PYTHON: after 2 steps')
+					#self.env.GetRewards()
 			else:
 				self.env.StepsAtOnce()
 

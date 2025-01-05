@@ -80,8 +80,7 @@ public:
     }
 
     Eigen::Vector3d getBodyNode_i_getCOMLinearVelocity(int i){
-        dart::dynamics::BodyNode* root = (*this)->getBodyNode(i);
-        return root->getCOMLinearVelocity();
+        return (*this)->getBodyNode(i)->getCOMLinearVelocity();
     }
 
     std::size_t getNumBodyNodes() const{

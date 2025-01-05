@@ -7,7 +7,8 @@ import pyMyDARTHelper
 import pyMySkeletonPtr
 
 class Environment:
-    def __init__(self):
+    def __init__(self, name):
+        self._name = name
         self._mControlHz = 30
         self._mSimulationHz = 900
         self._mWorld = pyMyWorldPtr.pyMyWorldPtr()
@@ -68,7 +69,7 @@ class Environment:
                     cyclic = False
                     if str3 == 'true':
                         cyclic = True
-                        character.LoadBVH(os.path.join(MASS_ROOT_DIR, str2), cyclic)
+                    character.LoadBVH(os.path.join(MASS_ROOT_DIR, str2), cyclic)
                 elif args[0] == 'reward_param':
                     a = float(args[1])
                     b = float(args[2])
@@ -104,14 +105,21 @@ class Environment:
             numMuscles = self._mCharacter.GetNumOfMuscles()
             for i in range(numMuscles):
                 m = self._mCharacter.getMuscleAt(i)
-                m.Update()
-                num_total_related_dofs += m.GetNumRelatedDofs()
+                # if i == 0 and self._name == "id=0":
+                #     self.PrintInfo('Initialize')
 
-            self._mCurrentMuscleTuple['JtA'] = np.full(num_total_related_dofs, 0)
-            self._mCurrentMuscleTuple['L'] = np.full(self._mNumActiveDof * self._mCharacter.GetNumOfMuscles(), 0)
-            self._mCurrentMuscleTuple['b'] = np.full(self._mNumActiveDof, 0)
-            self._mCurrentMuscleTuple['tau_des'] = np.full(self._mNumActiveDof, 0)
-            self._mActivationLevels = np.full(self._mCharacter.GetNumOfMuscles(), 0)
+                m.Update()
+
+                # if i == 0 and self._name == 'id=0':
+                #     self.PrintInfo('Initialize')
+                num_total_related_dofs += m.GetNumRelatedDofs()
+                self._mCharacter.setMuscleAt(i, m)
+
+            self._mCurrentMuscleTuple['JtA'] = np.full(num_total_related_dofs, 0.0)
+            self._mCurrentMuscleTuple['L'] = np.full(self._mNumActiveDof * self._mCharacter.GetNumOfMuscles(), 0.0)
+            self._mCurrentMuscleTuple['b'] = np.full(self._mNumActiveDof, 0.0)
+            self._mCurrentMuscleTuple['tau_des'] = np.full(self._mNumActiveDof, 0.0)
+            self._mActivationLevels = np.full(self._mCharacter.GetNumOfMuscles(), 0.0)
 
         self._mWorld.setGravity(np.array([0, -9.8, 0]))
         self._mWorld.setTimeStep(1.0 / self._mSimulationHz)
@@ -121,32 +129,68 @@ class Environment:
         self._mWorld.addSkeleton(self._mGround)
         self._mAction = np.full(self._mNumActiveDof, 0)
 
+        #self.PrintInfo()
+
         self.Reset(False)
+
+        #self.PrintInfo()
+
         self._mNumState = self.GetState().size
+
+    def PrintInfo(self, tag):
+        numMuscles = self._mCharacter.GetNumOfMuscles()
+        np.set_printoptions(linewidth=10000, edgeitems=30)
+        # print('DBG-PYTHON: name={} {}: reward={}'.format(self._name, tag, self.GetReward()), flush=True)
+
+        # # for i in range(numMuscles):
+        # #     muscle = self._mCharacter.getMuscleAt(i)
+        # #     if i == 0:
+        # #         print('DBG-PYTHON: name={} {}： JtA_i={}'.format(self._name, tag, muscle.GetRelatedJtA(False)), flush=True)
+        # # #         print('DBG-PYTHON: name={} {}: target position={}'.format(self._name, tag, self._mTargetPositions))       
+        # if(self._mUseMuscle and ('JtA' in self._mCurrentMuscleTuple)):
+        #     print('DBG-PYTHON: name={} {}：current.JtA={}'.format(self._name, tag, self._mCurrentMuscleTuple['JtA']), flush=True)
+
 
 
     def Reset(self, RSI):
+        #print('1')
+        #self.PrintInfo()
         self._mWorld.reset()
+        #print('2')
+        #self.PrintInfo()
         self._mCharacter.GetSkeleton().clearConstraintImpulses()
         self._mCharacter.GetSkeleton().clearInternalForces()
         self._mCharacter.GetSkeleton().clearExternalForces()
-
+        #print('3')
+        #self.PrintInfo()
         if RSI:
             t = np.random.uniform(0, self._mCharacter.GetBVH_GetMaxTime() * 0.9)
         else:
             t = 0.0
-        
+        #print('4')
+        #self.PrintInfo()
         self._mWorld.setTime(t)
         self._mCharacter.Reset()
         self._mAction.fill(0)
+        #print('5')
+        #self.PrintInfo()
 
+        #print('t={},controlHz={}'.format(t, self._mControlHz))
         pv = self._mCharacter.GetTargetPosAndVel(t, 1.0 / self._mControlHz)
         self._mTargetPositions = pv[0]
         self._mTargetVelocities = pv[1]
+        #print('6')
+        #self.PrintInfo()
 
         self._mCharacter.GetSkeleton().setPositions(self._mTargetPositions)
+        #print('7')
+        #self.PrintInfo()
         self._mCharacter.GetSkeleton().setVelocities(self._mTargetVelocities)   
+        #print('8')
+        #self.PrintInfo()        
         self._mCharacter.GetSkeleton().computeForwardKinematics(True, False, False)
+        #print('9')
+        #self.PrintInfo()
 
     def Step(self):
         if self._mUseMuscle:
@@ -158,6 +202,7 @@ class Environment:
                 count += 1
                 muscle.Update()
                 muscle.ApplyForceToBody()
+                self._mCharacter.setMuscleAt(i, muscle)
 
             if self._mSimCount == self._mRandomSampleIndex:
                 skel = self._mCharacter.GetSkeleton()
@@ -173,6 +218,7 @@ class Environment:
 
                     JtA[0:n, i] = Jt @ Ap[0]
                     Jtp += Jt @ Ap[1]
+                    self._mCharacter.setMuscleAt(i, muscle)
                 
                 self._mCurrentMuscleTuple['JtA'] = self.GetMuscleTorques()
                 L = JtA[self._mRootJointDof:n, 0:m]
@@ -181,9 +227,10 @@ class Environment:
                     L_vectorized[i * m : i * m + m] = L[i, 0:m]
                 self._mCurrentMuscleTuple['L'] = L_vectorized
                 self._mCurrentMuscleTuple['b'] = Jtp[self._mRootJointDof:n]
-                self._mCurrentMuscleTuple['tau_des'] = self._mDesiredTorques[self._mDesiredTorques.size - self._mRootJointDof]
+                self._mCurrentMuscleTuple['tau_des'] = self._mDesiredTorques[self._mRootJointDof:self._mDesiredTorques.size]
                 self._mMuscleTuples.append(self._mCurrentMuscleTuple)
             else:
+                #print('DBG: step{} name{}:'.format(self._mSimCount, self._name), flush=True)   
                 self.GetMuscleTorques()
                 self._mCharacter.GetSkeleton().setForces(self._mDesiredTorques)
             
@@ -191,10 +238,13 @@ class Environment:
             self._mSimCount += 1
     
     def GetDesiredTorques(self):
-        p_des = self._mTargetPositions
+        self.PrintInfo('GetDesiredTorques-1')
+        p_des = np.copy(self._mTargetPositions)
+        self.PrintInfo('GetDesiredTorques-2')
         p_des[self._mRootJointDof: self._mTargetPositions.size] += self._mAction
-        self._mDesiredTorques = self._mCharacter.GetSPDForces(p_des)
-        return self._mDesiredTorques[self._mDesiredTorques.size - self._mRootJointDof]
+        self.PrintInfo('GetDesiredTorques-3')
+        self._mDesiredTorques = self._mCharacter.GetSPDForces(p_des)      
+        return self._mDesiredTorques[self._mRootJointDof: self._mDesiredTorques.size]
     
     def GetMuscleTorques(self):
         index = 0
@@ -202,11 +252,21 @@ class Environment:
         numMuscles = self._mCharacter.GetNumOfMuscles()
         for i in range(numMuscles):
             muscle = self._mCharacter.getMuscleAt(i)
+            #if i == 0 and self._name == "id=0":
+            #    self.PrintInfo('before update@GetMuscleTorques simcount={}'.format(self._mSimCount))
+
             muscle.Update()
             JtA_i = muscle.GetRelatedJtA(False)
+
             self._mCurrentMuscleTuple['JtA'][index : index + JtA_i.size] = JtA_i
             index += JtA_i.size
-
+            self._mCharacter.setMuscleAt(i, muscle)
+            
+            #if i == 0 and self._name == "id=0":
+            #    self.PrintInfo('after update@GetMuscleTorques simcount={}'.format(self._mSimCount))
+        #self.PrintInfo('GetMuscleTorques')
+        if self._name == "id=0":
+            self.PrintInfo('after update@GetMuscleTorques simcount={}'.format(self._mSimCount))        
         return self._mCurrentMuscleTuple['JtA']
     
     def exp_of_squared(self, vec, w):
@@ -219,7 +279,6 @@ class Environment:
 
         root_y = self._mCharacter.GetSkeleton().getBodyNode0TransformTranslation_y() - self._mGround.getRootBodyNode_getCOM_y()
 
-        isTerminal = False
         if root_y < 1.3:
             isTerminal = True
         elif np.any(np.isnan(p)) or np.any(np.isnan(v)):
@@ -256,7 +315,8 @@ class Environment:
         self._mTargetVelocities = pv[1]
 
         self._mSimCount = 0
-        self._mRandomSampleIndex = np.random.randint(0, self._mSimulationHz / self._mControlHz)
+        self._mRandomSampleIndex = 10 # np.random.randint(0, self._mSimulationHz / self._mControlHz)
+        self._mAverageActivationLevels = 0
     
     def GetReward(self):
         skel = self._mCharacter.GetSkeleton()
@@ -288,13 +348,17 @@ class Environment:
             ee_diff[i * 3 : i * 3 + 3] = self._mCharacter.GetEndEffectors_i_getCOM(i)
 
         com_diff = skel.getCOM()
+        #print('DBG: com_diff={}'.format(com_diff))
         
+        #print('DBG: target positons={}'.format(self._mTargetPositions))
         skel.setPositions(self._mTargetPositions)
         skel.computeForwardKinematics(True, False, False)
 
         com_diff -= skel.getCOM()
         for i in range(ees_szie):
             ee_diff[i * 3 : i * 3 + 3] -= self._mCharacter.GetEndEffectors_i_getCOM(i) + com_diff
+
+        #print('DBG:2 ee_diff={}'.format(ee_diff))
 
         skel.setPositions(cur_pos)
         skel.computeForwardKinematics(True, False, False)

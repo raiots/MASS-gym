@@ -13,10 +13,12 @@ class EnvManager:
 
         # TODO: omp_set_num_threads(mNumEnvs);
         for id in range(num_envs):
-            self._mEnvs[id] = Environment()
+            self._mEnvs[id] = Environment('id={}'.format(id))
             self._mEnvs[id].Initialize_from_file(meta_file, False) # TODO: env->Initialize(meta_file,false);
-
+        
+        #print('DBG: EnvManager init continue before GetMuscleTorques')
         self._muscle_torque_cols = self._mEnvs[0].GetMuscleTorques().size
+        #print('DBG: EnvManager init continue after GetMuscleTorques')
         self._tau_des_cols = self._mEnvs[0].GetDesiredTorques().size 
 
         self._mEos = np.full(num_envs, None)
@@ -96,12 +98,16 @@ class EnvManager:
 
     def GetRewards(self):
         for id in range(self._mNumEnvs):
+            self._mEnvs[id].PrintInfo('GetRewards-Env{}'.format(id))    
             self._mRewards[id] = self._mEnvs[id].GetReward()
+
         return self._mRewards
     
     def GetMuscleTorques(self):
-        for id in range(self._mNumEnvs):          
+        for id in range(self._mNumEnvs):       
+            #print('DBG: GetMuscleTorques@EnvManager start->env{}'.format(id), flush=True)   
             self._mMuscleTorques[id] = self._mEnvs[id].GetMuscleTorques()
+            #print('DBG: GetMuscleTorques@EnvManager end ->env{}'.format(id), flush=True)   
         return self._mMuscleTorques
     
     def GetDesiredTorques(self):

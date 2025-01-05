@@ -48,6 +48,10 @@ public:
 		return *(mMuscles[i]);
 	}
 
+	void setMuscleAt(unsigned i, const Muscle& m){
+		*mMuscles[i] = m;
+	}
+
 	bool hasMuscles() {return true;}
 
 	const std::vector<dart::dynamics::BodyNode*>& GetEndEffectors(){return mEndEffectors;}
