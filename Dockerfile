@@ -17,4 +17,4 @@ RUN virtualenv /MASS/venv --python=python3 && \
     make -j8
 
 # 设置Python脚本运行命令
-CMD cd /MASS/python && python3 main.py -d ../data/metadata.txt
+CMD cd /MASS/python && . /MASS/venv/bin/activate && python3 main.py -d ../data/metadata.txt
