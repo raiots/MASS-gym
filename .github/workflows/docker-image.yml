@@ -15,4 +15,4 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Build the Docker image
-      run: docker buildx build --platform linux/arm/v8 . --file Dockerfile --tag mass-gym:$(date +%s)
+      run: docker buildx build --platform --platform=linux/amd64 . --file Dockerfile --tag mass-gym:$(date +%s)
