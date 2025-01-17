@@ -1,5 +1,5 @@
 # Container image that runs your code
-FROM raiots/mass_env:latest
+FROM --platform=linux/amd64 raiots/mass_env:latest
 
 # Copies your code file from your action repository to the filesystem path `/` of the container
 COPY . /MASS/
