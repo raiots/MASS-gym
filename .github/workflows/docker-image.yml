@@ -16,3 +16,7 @@ jobs:
     - uses: actions/checkout@v4
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag mass-gym:$(date +%s)
+
+    - name: Run the Docker image
+      run: docker run mass-gym:$(date +%s)
+      
