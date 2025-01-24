@@ -405,12 +405,14 @@ def Plot(y,title,num_fig=1,ylim=True):
 
 import argparse
 import os
-if __name__=="__main__":
-	parser = argparse.ArgumentParser()
-	parser.add_argument('-m','--model',help='model path')
-	parser.add_argument('-d','--meta',help='meta file')
 
-	args =parser.parse_args()
+def main():
+	parser = argparse.ArgumentParser()
+	parser.add_argument('-m', '--model', help='model path')
+	parser.add_argument('-d', '--meta', help='meta file')
+	parser.add_argument('--eval', action='store_true', help='evaluation mode')
+	
+	args = parser.parse_args()
 	if args.meta is None:
 		print('Provide meta file')
 		exit()
@@ -425,7 +427,46 @@ if __name__=="__main__":
 		ppo.SaveModel()
 	
 	print('num states: {}, num actions: {}'.format(ppo.env.GetNumState(),ppo.env.GetNumAction()))
-	for i in range(ppo.max_iteration-5):
-		ppo.Train()
-		rewards = ppo.Evaluate()
-		Plot(rewards,'reward',0,False)
+	
+	if args.eval:
+		# 评估模式
+		num_eval = 5
+		total_time = 0
+		rewards = []
+		
+		for i in range(num_eval):
+			start_time = time.time()
+			ppo.Train()
+			rewards.append(ppo.Evaluate())
+			end_time = time.time()
+			total_time += (end_time - start_time)
+			
+		avg_time = total_time / num_eval
+		avg_reward = np.mean([r[-1] for r in rewards])
+		
+		print('='*50)
+		print(f'Evaluation Results (over {num_eval} runs):')
+		print(f'Average Time per Episode: {avg_time:.2f} seconds')
+		print(f'Average Final Reward: {avg_reward:.3f}')
+		print('='*50)
+		
+		# 绘制所有评估回合的奖励曲线
+		plt.figure(figsize=(10,6))
+		for i, r in enumerate(rewards):
+			plt.plot(r, label=f'Run {i+1}')
+		plt.title('Reward Curves for Evaluation Runs')
+		plt.xlabel('Episode')
+		plt.ylabel('Reward')
+		plt.legend()
+		plt.savefig("eval_rewards.png")
+		plt.close()
+		
+	else:
+		# 正常训练模式
+		for i in range(ppo.max_iteration-5):
+			ppo.Train()
+			rewards = ppo.Evaluate()
+			Plot(rewards,'reward',0,False)
+
+if __name__=="__main__":
+	main()
